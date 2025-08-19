@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using OpenAI;
 using RimWorld;
 using Steamworks;
@@ -16,7 +16,6 @@ namespace RimGPT
 	{
 		public static bool DEBUG = false;
 		public static readonly Regex tagRemover = new("<color.+?>(.+?)</(?:color)?>", RegexOptions.Singleline);
-		//public static List<string> chatGPTModels = ["gpt-3.5-turbo-0125", "gpt-4-0125-preview"];
 
 		public readonly struct Strings
 		{
@@ -131,7 +130,6 @@ namespace RimGPT
 			>= 1000 => (num / 1000D).ToString("0.#") + "K",
 			_ => num.ToString()
 		};
-
 
 		public static void SafeAsync(Func<Task> function)
 		{
@@ -258,10 +256,7 @@ namespace RimGPT
 			return Strings.visitor;
 		}
 
-		public static string NameAndType(this Pawn pawn)
-		{
-			return $"{pawn.Type()} '{pawn.LabelShortCap}'";
-		}
+		public static string NameAndType(this Pawn pawn) => $"{pawn.Type()} '{pawn.LabelShortCap}'";
 
 		public static string ApplyVoiceStyle(this string text, Persona persona)
 		{
@@ -344,7 +339,6 @@ namespace RimGPT
 			else if (entry is BattleLogEntry_StateTransition transition)
 				from = transition.subjectPawn;
 		}
-
 
 		// gets the job label from a specific pawn
 		public static string GetJobLabelFromPawn(Job job, Pawn driverPawn)
@@ -430,8 +424,8 @@ namespace RimGPT
 
 			try
 			{
-				char firstLetter = noun.TrimStart()[0];
-				bool isVowel = "aeiouAEIOU".IndexOf(firstLetter) >= 0;
+				var firstLetter = noun.TrimStart()[0];
+				var isVowel = "aeiouAEIOU".IndexOf(firstLetter) >= 0;
 				return isVowel ? "an" : "a";
 			}
 			catch

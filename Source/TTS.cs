@@ -1,4 +1,4 @@
-﻿using Kevsoft.Ssml;
+using Kevsoft.Ssml;
 using Newtonsoft.Json;
 using System;
 using System.Linq;
@@ -277,10 +277,10 @@ namespace RimGPT
 				}
 				if (error != null)
 					LongEventHandler.ExecuteWhenFinished(() =>
-						{
-							var dialog = new Dialog_MessageBox(error, null, null, null, null, null, false, callback, callback);
-							Find.WindowStack.Add(dialog);
-						});
+					{
+						var dialog = new Dialog_MessageBox(error, null, null, null, null, null, false, callback, callback);
+						Find.WindowStack.Add(dialog);
+					});
 				else
 					callback?.Invoke();
 			});

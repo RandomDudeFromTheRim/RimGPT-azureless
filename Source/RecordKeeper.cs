@@ -94,10 +94,7 @@ namespace RimGPT
 			return dataBuilder.ToString();
 		}).ToArray();
 
-		private static void AddBasicInformation(StringBuilder builder, ColonistData colonist)
-		{
-			builder.Append($"Colonist {colonist.Name}, a {colonist.Age} year old {colonist.Gender} with a mood of {colonist.Mood}.");
-		}
+		private static void AddBasicInformation(StringBuilder builder, ColonistData colonist) => _ = builder.Append($"Colonist {colonist.Name}, a {colonist.Age} year old {colonist.Gender} with a mood of {colonist.Mood}.");
 
 		private static void AddSkillsInformation(StringBuilder builder, ColonistData colonist)
 		{
@@ -106,13 +103,13 @@ namespace RimGPT
 				.OrderBy(group => group.Key);
 
 			var skillDescriptions = skillGroups.Select(group => $"{group.Select(skill => skill.Key).Join()} are at skill level {group.Key}");
-			builder.Append($" {colonist.Name}'s skill levels are: {skillDescriptions.Join(delimiter: "; ")}.");
+			_ = builder.Append($" {colonist.Name}'s skill levels are: {skillDescriptions.Join(delimiter: "; ")}.");
 		}
 
 		private static void AddTraitsInformation(StringBuilder builder, ColonistData colonist)
 		{
 			if (colonist.Traits?.Any() == true)
-				builder.Append($" {colonist.Name}'s notable traits are: {colonist.Traits.Join()}.");
+				_ = builder.Append($" {colonist.Name}'s notable traits are: {colonist.Traits.Join()}.");
 		}
 
 		private static void AddHealthInformation(StringBuilder builder, ColonistData colonist)
@@ -139,7 +136,7 @@ namespace RimGPT
 					hediffsText = hediffDescriptions.Join();
 				}
 
-				builder.Append($" {colonist.Name} has {hediffsText}.");
+				_ = builder.Append($" {colonist.Name} has {hediffsText}.");
 			}
 		}
 
@@ -147,11 +144,10 @@ namespace RimGPT
 		{
 			if (colonist.AllowedWorkTypes?.Any() == true)
 			{
-				string workTypes = string.Join(", ", colonist.AllowedWorkTypes.Select(wt => wt.ToString()).ToArray());
-				builder.Append($"{colonist.Name}'s allowed work types are: {workTypes}.");
+				var workTypes = string.Join(", ", colonist.AllowedWorkTypes.Select(wt => wt.ToString()).ToArray());
+				_ = builder.Append($"{colonist.Name}'s allowed work types are: {workTypes}.");
 			}
 		}
-
 
 		// this should only be used for when we are clearing personas for now, i'm not sure if this creates a memory leak or not
 		// or if this causes any other lock related issues
@@ -168,7 +164,5 @@ namespace RimGPT
 				roomsData = [];
 			}
 		}
-
-
 	}
 }

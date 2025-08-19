@@ -19,29 +19,29 @@ namespace RimGPT
 			if (TotalPowerGenerated == 0 && TotalPowerNeeded == 0) return "";
 
 			var builder = new StringBuilder();
-			builder.AppendLine($"Total Power Generated: {TotalPowerGenerated}");
-			builder.AppendLine($"Total Power Needed: {TotalPowerNeeded}");
-			builder.AppendLine(PowerStatus);
+			_ = builder.AppendLine($"Total Power Generated: {TotalPowerGenerated}");
+			_ = builder.AppendLine($"Total Power Needed: {TotalPowerNeeded}");
+			_ = builder.AppendLine(PowerStatus);
 
 			if (Producers.Any())
 			{
-				builder.AppendLine("Power Generators:");
+				_ = builder.AppendLine("Power Generators:");
 				foreach (var producer in Producers)
 				{
-					builder.AppendLine($"{producer.Label} (Power Output: {producer.PowerOutput})");
+					_ = builder.AppendLine($"{producer.Label} (Power Output: {producer.PowerOutput})");
 				}
 			}
 			else
 			{
-				builder.AppendLine("Power Generators: None");
+				_ = builder.AppendLine("Power Generators: None");
 			}
 
 			if (Consumers.Any())
 			{
-				builder.AppendLine("Power Consumption:");
+				_ = builder.AppendLine("Power Consumption:");
 				foreach (var consumer in Consumers)
 				{
-					builder.AppendLine($"{consumer.Label} (Power Consumption: {consumer.PowerConsumed})");
+					_ = builder.AppendLine($"{consumer.Label} (Power Consumption: {consumer.PowerConsumed})");
 				}
 			}
 

@@ -1,4 +1,4 @@
-﻿namespace Kevsoft.Ssml
+namespace Kevsoft.Ssml
 {
 	public class SsmlConfiguration(bool excludeSpeakVersion)
 	{

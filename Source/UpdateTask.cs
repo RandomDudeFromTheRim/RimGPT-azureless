@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Verse;
 
 namespace RimGPT
@@ -8,19 +8,19 @@ namespace RimGPT
 	// - action is executed at each scheduled interval
 	// - startImmediately to indicate the action will be executed as soon as the task starts
 	//
-        public struct UpdateTask
-        {
-                public int updateTickCounter;
-                public Func<int> updateIntervalFunc;
-                public Action<Map> action;
+	public struct UpdateTask
+	{
+		public int updateTickCounter;
+		public Func<int> updateIntervalFunc;
+		public Action<Map> action;
 
-                public UpdateTask(Func<int> updateIntervalFunc, Action<Map> action, bool startImmediately)
-                {
-                        this.updateIntervalFunc = updateIntervalFunc;
-                        this.action = action;
+		public UpdateTask(Func<int> updateIntervalFunc, Action<Map> action, bool startImmediately)
+		{
+			this.updateIntervalFunc = updateIntervalFunc;
+			this.action = action;
 
-                        var interval = Math.Max(1, updateIntervalFunc());
-                        updateTickCounter = startImmediately ? 0 : Rand.Range(interval / 2, interval);
-                }
-        }
+			var interval = Math.Max(1, updateIntervalFunc());
+			updateTickCounter = startImmediately ? 0 : Rand.Range(interval / 2, interval);
+		}
+	}
 }

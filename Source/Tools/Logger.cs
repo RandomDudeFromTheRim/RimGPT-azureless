@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 
 namespace RimGPT
 {
@@ -12,20 +12,11 @@ namespace RimGPT
 
 		private static readonly ConcurrentQueue<Msg> log = new();
 
-		public static void Message(string txt)
-		{
-			log.Enqueue(new Msg() { txt = txt, level = 0 });
-		}
+		public static void Message(string txt) => log.Enqueue(new Msg() { txt = txt, level = 0 });
 
-		public static void Warning(string txt)
-		{
-			log.Enqueue(new Msg() { txt = txt, level = 1 });
-		}
+		public static void Warning(string txt) => log.Enqueue(new Msg() { txt = txt, level = 1 });
 
-		public static void Error(string txt)
-		{
-			log.Enqueue(new Msg() { txt = txt, level = 2 });
-		}
+		public static void Error(string txt) => log.Enqueue(new Msg() { txt = txt, level = 2 });
 
 		internal static void Log()
 		{

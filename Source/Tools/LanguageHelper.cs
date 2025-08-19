@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace RimGPT;
 
@@ -30,17 +30,18 @@ public class LanguageHelper
 		var matrix = new int[lengthSource + 1, lengthTarget + 1];
 
 		// Initialize the matrix.
-		for (int i = 0; i <= lengthSource; matrix[i, 0] = i++) { }
-		for (int j = 0; j <= lengthTarget; matrix[0, j] = j++) { }
+		for (var i = 0; i <= lengthSource; matrix[i, 0] = i++) { }
+		for (var j = 0; j <= lengthTarget; matrix[0, j] = j++) { }
 
-		for (int i = 1; i <= lengthSource; i++)
+		for (var i = 1; i <= lengthSource; i++)
 		{
-			for (int j = 1; j <= lengthTarget; j++)
+			for (var j = 1; j <= lengthTarget; j++)
 			{
-				int cost = (target[j - 1] == source[i - 1]) ? 0 : 1;
+				var cost = (target[j - 1] == source[i - 1]) ? 0 : 1;
 				matrix[i, j] = Math.Min(
-						Math.Min(matrix[i - 1, j] + 1, matrix[i, j - 1] + 1),
-						matrix[i - 1, j - 1] + cost);
+					Math.Min(matrix[i - 1, j] + 1, matrix[i, j - 1] + 1),
+					matrix[i - 1, j - 1] + cost
+				);
 			}
 		}
 

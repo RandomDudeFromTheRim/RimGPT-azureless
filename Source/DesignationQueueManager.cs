@@ -46,31 +46,28 @@ namespace RimGPT
 				{
 					if (entry.Value >= threshold || forceFlush)
 					{
-						string message = $"{entry.Key.orderType.ToActionVerb()} '{entry.Key.workOrderVerb}' for";
+						var message = $"{entry.Key.orderType.ToActionVerb()} '{entry.Key.workOrderVerb}' for";
 						if (entry.Value > 1)
 						{
 							message += $" {entry.Value} {Tools.SimplePluralize(entry.Key.targetObject)}";
 						}
 						else
 						{
-							string indefiniteArticle = Tools.GetIndefiniteArticleFor(entry.Key.targetObject);
+							var indefiniteArticle = Tools.GetIndefiniteArticleFor(entry.Key.targetObject);
 							message += $" {indefiniteArticle} {entry.Key.targetObject}";
 						}
 						orders.Add(message);
-
 
 						keysToRemove.Add(entry.Key);
 					}
 				}
 
-
-
 				foreach (var key in keysToRemove)
 				{
-					designationCounts.Remove(key);
+					_ = designationCounts.Remove(key);
 				}
 
-				string combinedMessage = GenText.ToCommaList(orders, true);
+				var combinedMessage = GenText.ToCommaList(orders, true);
 				if (!string.IsNullOrEmpty(combinedMessage) && combinedMessage != "none")
 				{
 					Personas.Add($"The player {combinedMessage}", 3);
@@ -118,13 +115,10 @@ namespace RimGPT
 	{
 		private static readonly Dictionary<OrderType, string> orderTypeStringMapping = new()
 		{
-		{ OrderType.Designate, "designated" },
-		{ OrderType.Cancel, "cancelled" }
-	};
+			{ OrderType.Designate, "designated" },
+			{ OrderType.Cancel, "cancelled" }
+		};
 
-		public static string ToActionVerb(this OrderType orderType)
-		{
-			return orderTypeStringMapping.TryGetValue(orderType, out var stringValue) ? stringValue : null;
-		}
+		public static string ToActionVerb(this OrderType orderType) => orderTypeStringMapping.TryGetValue(orderType, out var stringValue) ? stringValue : null;
 	}
 }

@@ -1,4 +1,4 @@
-﻿using HarmonyLib;
+using HarmonyLib;
 using System;
 using System.Linq;
 using System.Xml.Linq;
@@ -97,7 +97,7 @@ namespace RimGPT
 		}
 		public void ScheduleNextJob()
 		{
-			int limit = GetReasonableSkipLimit(phraseDelayMin, phraseDelayMax);
+			var limit = GetReasonableSkipLimit(phraseDelayMin, phraseDelayMax);
 
 			if (Personas.isResetting)
 			{
@@ -112,7 +112,6 @@ namespace RimGPT
 			// we could do the batching before-hand, but I figured we want the freshest data and we dont want any outstanding jbos.
 			var batch = new Phrase[0];
 
-
 			lock (phrases)
 			{
 				batch = phrases.Take(phraseBatchSize).ToArray();
@@ -125,10 +124,9 @@ namespace RimGPT
 				phrases.RemoveFromStart(phraseBatchSize);
 			}
 
-			// this gets overridden when createSpeechJob complets, much less than 5 mins - so its probably a safety measure to ensure we can 
+			// this gets overridden when createSpeechJob complets, much less than 5 mins - so its probably a safety measure to ensure we can
 			// call this again if the callback in createSpeechJob never executes.
 			nextPhraseTime = DateTime.Now.AddMinutes(5);
-
 
 			// Alternative Strategy, always talk anyway but remember the last thing said:
 			// if persona has no new phrases, add a phrase of the last thing a recent persona said, to help with the conversation.
@@ -163,7 +161,7 @@ namespace RimGPT
 		public int GetReasonableSkipLimit(float a, float b)
 		{
 
-			double meanDelayInSeconds = (a + b) / 2.0;
+			var meanDelayInSeconds = (a + b) / 2.0;
 
 			if (meanDelayInSeconds <= 60)
 			{
@@ -177,12 +175,11 @@ namespace RimGPT
 			else
 			{
 				// Linearly interpolate the skip limit between 1 and max skip limit based on the mean delay
-				double slope = (1 - maximumSkipLimit) / (1200.0 - 60.0);
-				int limit = (int)Math.Round(5 + slope * (meanDelayInSeconds - 30));
+				var slope = (1 - maximumSkipLimit) / (1200.0 - 60.0);
+				var limit = (int)Math.Round(5 + slope * (meanDelayInSeconds - 30));
 				return Math.Max(1, Math.Min(limit, maximumSkipLimit)); // Ensure the skip limit stays within the range 1 to max
 			}
 		}
-
 
 		public void ExtendWaitBeforeNextJob(string reason)
 		{
@@ -222,8 +219,7 @@ namespace RimGPT
 		public string ToXml()
 		{
 			var personalityElement = new XElement("Personality");
-			var fields = AccessTools.GetDeclaredFields(GetType())
-				.Where(field => Attribute.IsDefined(field, typeof(SettingAttribute)));
+			var fields = AccessTools.GetDeclaredFields(GetType()).Where(field => Attribute.IsDefined(field, typeof(SettingAttribute)));
 			foreach (var field in fields)
 			{
 				var fieldElement = new XElement(field.Name, field.GetValue(this));

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
@@ -26,10 +26,7 @@ public static class SaveAudioClip
 		return TrimSilence(new List<float>(samples), min, clip.channels, clip.frequency);
 	}
 
-	public static AudioClip TrimSilence(List<float> samples, float min, int channels, int hz)
-	{
-		return TrimSilence(samples, min, channels, hz, false);
-	}
+	public static AudioClip TrimSilence(List<float> samples, float min, int channels, int hz) => TrimSilence(samples, min, channels, hz, false);
 
 	public static AudioClip TrimSilence(List<float> samples, float min, int channels, int hz, bool stream)
 	{

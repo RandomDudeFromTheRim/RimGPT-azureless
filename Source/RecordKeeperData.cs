@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
-using Verse;
+using System.Collections.Generic;
 using System.Linq;
+using Verse;
 
 namespace RimGPT
 {
@@ -44,17 +44,13 @@ namespace RimGPT
 			if (Completed == null) return "";
 			if (Available == null) return "";
 			// Join function must be provided or use String.Join for handling arrays
-			string completedResearchString = string.Join(", ", Completed.Select(r => r.label).ToArray());
-			string currentResearchString = Current?.label ?? "None";
-			string availableResearchString = string.Join(", ", Available.Select(r => r.label).ToArray());
+			var completedResearchString = string.Join(", ", Completed.Select(r => r.label).ToArray());
+			var currentResearchString = Current?.label ?? "None";
+			var availableResearchString = string.Join(", ", Available.Select(r => r.label).ToArray());
 
 			return $"Already Known: {completedResearchString}\n" +
-						 $"Current Research: {currentResearchString}\n" +
-						 $"Available Research: {availableResearchString}";
+				$"Current Research: {currentResearchString}\n" +
+				$"Available Research: {availableResearchString}";
 		}
 	}
-
-
-
-
 }

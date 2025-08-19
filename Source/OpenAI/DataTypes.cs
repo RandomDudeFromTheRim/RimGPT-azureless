@@ -1,10 +1,8 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 
 namespace OpenAI
 {
-	#region Common Data Types
-
 	public struct Choice
 	{
 		public string Text { get; set; }
@@ -56,10 +54,6 @@ namespace OpenAI
 		public string Organization { get; set; }
 	}
 
-	#endregion Common Data Types
-
-	#region Models API Data Types
-
 	public struct ListModelsResponse : IResponse
 	{
 		public ApiError Error { get; set; }
@@ -104,10 +98,6 @@ namespace OpenAI
 		public ApiError Error { get; set; }
 		public string Warning { get; set; }
 	}
-
-	#endregion Models API Data Types
-
-	#region Chat API Data Types
 
 	/// <summary>
 	/// Setting to "json_object" enables JSON mode.
@@ -319,10 +309,6 @@ namespace OpenAI
 		// Missing: tool_calls[] https://platform.openai.com/docs/api-reference/chat/object#chat/object-choices
 	}
 
-	#endregion Chat API Data Types
-
-	#region Audio Transcriptions Data Types
-
 	public struct FileData
 	{
 		public byte[] Data;
@@ -353,10 +339,6 @@ namespace OpenAI
 		public string Warning { get; set; }
 		public string Text { get; set; }
 	}
-
-	#endregion Audio Transcriptions Data Types
-
-	#region Completions API Data Types | Obsolete, do not use
 
 	public sealed class CreateCompletionRequest
 	{
@@ -390,10 +372,6 @@ namespace OpenAI
 		public Usage Usage { get; set; }
 	}
 
-	#endregion Completions API Data Types | Obsolete, do not use
-
-	#region Edits API Data Types
-
 	public sealed class CreateEditRequest
 	{
 		public string Model { get; set; }
@@ -413,10 +391,6 @@ namespace OpenAI
 		public List<Choice> Choices { get; set; }
 		public Usage Usage { get; set; }
 	}
-
-	#endregion Edits API Data Types
-
-	#region Images API Data Types
 
 	public class CreateImageRequestBase
 	{
@@ -461,10 +435,6 @@ namespace OpenAI
 		public string RevisedPrompt { get; set; }
 	}
 
-	#endregion Images API Data Types
-
-	#region Embeddins API Data Types
-
 	public struct CreateEmbeddingsRequest
 	{
 		public string Model { get; set; }
@@ -489,10 +459,6 @@ namespace OpenAI
 		public int Index { get; set; }
 	}
 
-	#endregion Embeddins API Data Types
-
-	#region Files API Data Types
-
 	public struct ListFilesResponse : IResponse
 	{
 		public ApiError Error { get; set; }
@@ -516,10 +482,6 @@ namespace OpenAI
 		public string File { get; set; }
 		public string Purpose { get; set; }
 	}
-
-	#endregion Files API Data Types
-
-	#region FineTunes API Data Types
 
 	public class CreateFineTuneRequest
 	{
@@ -585,10 +547,6 @@ namespace OpenAI
 		public string Message { get; set; }
 	}
 
-	#endregion FineTunes API Data Types
-
-	#region Moderations API Data Types
-
 	public class CreateModerationRequest
 	{
 		public string Input { get; set; }
@@ -610,10 +568,6 @@ namespace OpenAI
 		public Dictionary<string, bool> Categories { get; set; }
 		public Dictionary<string, float> CategoryScores { get; set; }
 	}
-
-	#endregion Moderations API Data Types
-
-	#region Static String Types
 
 	public static class ContentType
 	{
@@ -648,6 +602,4 @@ namespace OpenAI
 		public const string Stable = "text-moderation-stable";
 		public const string Latest = "text-moderation-latest";
 	}
-
-	#endregion Static String Types
 }

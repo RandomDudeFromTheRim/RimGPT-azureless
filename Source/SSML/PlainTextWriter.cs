@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using System.Xml;
 
 namespace Kevsoft.Ssml
@@ -7,10 +7,6 @@ namespace Kevsoft.Ssml
 	{
 		private readonly string _value = value;
 
-		public async Task WriteAsync(XmlWriter writer)
-		{
-			await writer.WriteStringAsync(_value)
-				 .ConfigureAwait(false);
-		}
+		public async Task WriteAsync(XmlWriter writer) => await writer.WriteStringAsync(_value).ConfigureAwait(false);
 	}
 }

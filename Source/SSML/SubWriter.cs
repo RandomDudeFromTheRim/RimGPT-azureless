@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using System.Xml;
 
 namespace Kevsoft.Ssml
@@ -10,17 +10,10 @@ namespace Kevsoft.Ssml
 
 		public async Task WriteAsync(XmlWriter writer)
 		{
-			await writer.WriteStartElementAsync(null, "sub", null)
-				 .ConfigureAwait(false);
-
-			await writer.WriteAttributeStringAsync(null, "alias", null, _alias)
-				 .ConfigureAwait(false);
-
-			await _innerWriter.WriteAsync(writer)
-				 .ConfigureAwait(false);
-
-			await writer.WriteEndElementAsync()
-				 .ConfigureAwait(false);
+			await writer.WriteStartElementAsync(null, "sub", null).ConfigureAwait(false);
+			await writer.WriteAttributeStringAsync(null, "alias", null, _alias).ConfigureAwait(false);
+			await _innerWriter.WriteAsync(writer).ConfigureAwait(false);
+			await writer.WriteEndElementAsync().ConfigureAwait(false);
 		}
 	}
 }

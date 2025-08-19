@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using Verse;
@@ -66,7 +66,7 @@ namespace RimGPT
 				if (!candidates.Any())
 				{
 					// If there are no future phrase times, simply use the round-robin approach.
-					int currentIndex = lastSpeaker != null ? RimGPTMod.Settings.personas.IndexOf(lastSpeaker) : 0;
+					var currentIndex = lastSpeaker != null ? RimGPTMod.Settings.personas.IndexOf(lastSpeaker) : 0;
 					if (currentIndex == -1 || currentIndex >= RimGPTMod.Settings.personas.Count - 1)
 						currentIndex = 0;
 					else
@@ -104,7 +104,7 @@ namespace RimGPT
 				// Clear
 				allPhrases.Clear();
 
-				// To help keep the conversation going, 
+				// To help keep the conversation going,
 				// Add last spoken phrase from the previous speaker if it's not null
 				if (lastSpeaker != null)
 				{
@@ -121,10 +121,7 @@ namespace RimGPT
 			}
 		}
 
-		public static bool IsAnyCompletedJobWaiting()
-		{
-			return speechQueue.Any(job => job.readyForNextJob && !job.isPlaying);
-		}
+		public static bool IsAnyCompletedJobWaiting() => speechQueue.Any(job => job.readyForNextJob && !job.isPlaying);
 
 		public static void Add(string text, int priority, Persona speaker = null)
 		{
@@ -138,7 +135,6 @@ namespace RimGPT
 				allPhrases.Add(phrase);
 			}
 		}
-
 
 		public static void RemoveSpeechDelayForPersona(Persona persona)
 		{
@@ -165,8 +161,6 @@ namespace RimGPT
 
 				foreach (var persona in RimGPTMod.Settings.personas)
 					persona.Reset(reason);
-
-
 
 				isResetting = false;
 			}

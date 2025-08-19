@@ -1,4 +1,4 @@
-﻿using HarmonyLib;
+using HarmonyLib;
 using Newtonsoft.Json;
 using OpenAI;
 using RimWorld;
@@ -42,8 +42,6 @@ namespace RimGPT
 		}
 #pragma warning restore CS0649
 
-		// OpenAIApi is now a static object, the ApiConfig details are added by ReloadGPTModels.
-		//public OpenAIApi OpenAI => new(RimGPTMod.Settings.chatGPTKey);
 		private List<string> history = [];
 
 		public const string defaultPersonality = "You are a commentator watching the player play the popular game, Rimworld.";
@@ -73,32 +71,31 @@ namespace RimGPT
 				NewHistoricalKeyEvents = ["OldEventsSummary", "Event 1 and 2", "Event3"]
 			}, settings);
 
-
 			return new List<string>
-				{
-						$"You are {currentPersona.name}.\n",
-						// Adds weight to using its the personality with its responses: as a chronicler, focusing on balanced storytelling, or as an interactor, focusing on personality-driven improvisation.						
-						currentPersona.isChronicler ? "Unless otherwise specified, balance major events and subtle details, and express them in your unique style."
-																				: "Unless otherwise specified, interact reflecting your unique personality, embracing an improvisational approach based on your background, the current situation, and others' actions",
-						$"Unless otherwise specified, ", otherObservers.Any() ? $"your fellow observers are {otherObservers}. " : "",
-						$"Unless otherwise specified, ",(otherObservers.Any() ? $"you are all watching " : "You are watching") + $"'{player}' play Rimworld.\n",
-						$"Your role/personality: {currentPersona.personality.Replace("PLAYERNAME", player)}\n",
-						$"Your input comes from the current game and will be json like this: {exampleInput}\n",
-						$"Your output must only be in json like this: {exampleOutput}\n",
-						$"Limit ResponseText to no more than {currentPersona.phraseMaxWordCount} words.\n",
-						$"Limit NewHistoricalKeyEvents to no more than {currentPersona.historyMaxWordCount} words.\n",
+			{
+			$"You are {currentPersona.name}.\n",
+			// Adds weight to using its the personality with its responses: as a chronicler, focusing on balanced storytelling, or as an interactor, focusing on personality-driven improvisation.
+			currentPersona.isChronicler ? "Unless otherwise specified, balance major events and subtle details, and express them in your unique style." : "Unless otherwise specified, interact reflecting your unique personality, embracing an improvisational approach based on your background, the current situation, and others' actions",
+			$"Unless otherwise specified, ", otherObservers.Any() ? $"your fellow observers are {otherObservers}. " : "",
+			$"Unless otherwise specified, ",(otherObservers.Any() ? $"you are all watching " : "You are watching") + $"'{player}' play Rimworld.\n",
+			$"Your role/personality: {currentPersona.personality.Replace("PLAYERNAME", player)}\n",
+			$"Your input comes from the current game and will be json like this: {exampleInput}\n",
+			$"Your output must only be in json like this: {exampleOutput}\n",
+			$"Limit ResponseText to no more than {currentPersona.phraseMaxWordCount} words.\n",
+			$"Limit NewHistoricalKeyEvents to no more than {currentPersona.historyMaxWordCount} words.\n",
 
-						// Encourages the AI to consider how its responses would sound when spoken, ensuring clarity and accessibility.
-						$"When constructing the 'ResponseText', consider vocal clarity and pacing so that it is easily understandable when spoken by Microsoft Azure Speech Services.\n",
-						// Prioritizes sources of information.
-						$"Update prioritization: 1. ActivityFeed, 2. Additional Fields (as context).\n",
-						// Further reinforces the AI's specific personality by resynthesizing different pieces of information and storing it in its own history
-						$"Combine PreviousHistoricalKeyEvents, and each event from the 'ActivityFeed' and synthesize it into a new, concise form for 'NewHistoricalKeyEvents', make sure that the new synthesis matches your persona.\n",
-						// Guides the AI in understanding the sequence of events, emphasizing the need for coherent and logical responses or interactions.
-						"Items sequence in 'LastSpokenText', 'PreviousHistoricalKeyEvents', and 'ActivityFeed' reflects the event timeline; use it to form coherent responses or interactions.\n",
-						$"Remember: your output MUST be valid JSON and 'NewHistoricalKeyEvents' MUST ONLY contain simple text entries, each encapsulated in quotes as string literals.\n",
-						$"For example, {exampleOutput}. No nested objects, arrays, or non-string data types are allowed within 'NewHistoricalKeyEvents'.\n",
-				}.Join(delimiter: "");
+			// Encourages the AI to consider how its responses would sound when spoken, ensuring clarity and accessibility.
+			$"When constructing the 'ResponseText', consider vocal clarity and pacing so that it is easily understandable when spoken by Microsoft Azure Speech Services.\n",
+			// Prioritizes sources of information.
+			$"Update prioritization: 1. ActivityFeed, 2. Additional Fields (as context).\n",
+			// Further reinforces the AI's specific personality by resynthesizing different pieces of information and storing it in its own history
+			$"Combine PreviousHistoricalKeyEvents, and each event from the 'ActivityFeed' and synthesize it into a new, concise form for 'NewHistoricalKeyEvents', make sure that the new synthesis matches your persona.\n",
+			// Guides the AI in understanding the sequence of events, emphasizing the need for coherent and logical responses or interactions.
+			"Items sequence in 'LastSpokenText', 'PreviousHistoricalKeyEvents', and 'ActivityFeed' reflects the event timeline; use it to form coherent responses or interactions.\n",
+			$"Remember: your output MUST be valid JSON and 'NewHistoricalKeyEvents' MUST ONLY contain simple text entries, each encapsulated in quotes as string literals.\n",
+			$"For example, {exampleOutput}. No nested objects, arrays, or non-string data types are allowed within 'NewHistoricalKeyEvents'.\n",
+			}
+			.Join(delimiter: "");
 		}
 
 		private string GetCurrentChatGPTModel()
@@ -109,7 +106,6 @@ namespace RimGPT
 
 			var activeUserConfig = RimGPTMod.Settings.userApiConfigs.FirstOrDefault(a => a.Active);
 			OpenAIApi.SwitchConfig(activeUserConfig.Provider);
-
 
 			if (activeUserConfig.ModelId?.Length == 0)
 				return "";
@@ -142,7 +138,7 @@ namespace RimGPT
 				Logger.Error($"Calculate FP Error: Null source or target. Source: {source}, Target: {target}");
 				return default;
 			}
-			int levenshteinDistance = LanguageHelper.CalculateLevenshteinDistance(source, target);
+			var levenshteinDistance = LanguageHelper.CalculateLevenshteinDistance(source, target);
 
 			// You can adjust these constants based on the desired sensitivity.
 			const float maxPenalty = 2.0f; // Maximum penalty when there is little to no change.
@@ -154,12 +150,11 @@ namespace RimGPT
 				return maxPenalty;
 
 			// Apply scaled penalty for distances greater than threshold.
-			float penaltyScaleFactor = (float)(levenshteinDistance - threshold) / (Math.Max(source.Length, target.Length) - threshold);
-			float frequencyPenalty = maxPenalty * (1 - penaltyScaleFactor);
+			var penaltyScaleFactor = (float)(levenshteinDistance - threshold) / (Math.Max(source.Length, target.Length) - threshold);
+			var frequencyPenalty = maxPenalty * (1 - penaltyScaleFactor);
 
 			return Mathf.Clamp(frequencyPenalty, minPenalty, maxPenalty);
 		}
-
 
 		public async Task<string> Evaluate(Persona persona, IEnumerable<Phrase> observations, int retry = 0, string retryReason = "")
 		{
@@ -200,7 +195,7 @@ namespace RimGPT
 
 					// I'm not sure why, but Personas are not being reset propery, they tend to have activityfeed of old stuff
 					// and recordKeeper contains colony data still.  I"m guessing the reset unloads a bunch of stuff before
-					// the actual reset could finish (or something...?) 
+					// the actual reset could finish (or something...?)
 					// this ensures the reset happens
 					Personas.Reset();
 
@@ -225,7 +220,7 @@ namespace RimGPT
 			{
 				systemPrompt += "\nNOTE: You're being too repetitive, you need to review the data you have and come up with something new.";
 				systemPrompt += $"\nAVOID talking about anything related to this: {persona.lastSpokenText}";
-				history.AddItem("I've been too repetitive lately, I need to examine the data and stray lastSpokenText");
+				_ = history.AddItem("I've been too repetitive lately, I need to examine the data and stray lastSpokenText");
 			}
 			if (history.Count() > 5)
 			{
@@ -257,27 +252,27 @@ namespace RimGPT
 			if (Tools.DEBUG)
 				Logger.Warning($"INPUT: {JsonConvert.SerializeObject(request, settings)}");
 
-                        var completionResponse = await OpenAIApi.CreateChatCompletion(request, error => Logger.Error(error));
-                        if (activeConfig != null)
-                                activeConfig.CharactersSent += systemPrompt.Length + input.Length;
+			var completionResponse = await OpenAIApi.CreateChatCompletion(request, error => Logger.Error(error));
+			if (activeConfig != null)
+				activeConfig.CharactersSent += systemPrompt.Length + input.Length;
 
-                        if (completionResponse.Choices == null)
-                        {
-                                if (retry < maxRetries)
-                                {
-                                        Logger.Error("(retrying) ChatGPT request returned no choices");
-                                        return await Evaluate(persona, observations, ++retry, "null response");
-                                }
+			if (completionResponse.Choices == null)
+			{
+				if (retry < maxRetries)
+				{
+					Logger.Error("(retrying) ChatGPT request returned no choices");
+					return await Evaluate(persona, observations, ++retry, "null response");
+				}
 
-                                Logger.Error("(aborted) ChatGPT request returned no choices");
-                                return null;
-                        }
+				Logger.Error("(aborted) ChatGPT request returned no choices");
+				return null;
+			}
 
-                        if (completionResponse.Choices.Count > 0)
-                        {
-                                var response = completionResponse.Choices[0].Message.Content ?? "";
-                                if (activeConfig != null)
-                                        activeConfig.CharactersReceived += response.Length;
+			if (completionResponse.Choices.Count > 0)
+			{
+				var response = completionResponse.Choices[0].Message.Content ?? "";
+				if (activeConfig != null)
+					activeConfig.CharactersReceived += response.Length;
 				response = response.Trim();
 				var firstIdx = response.IndexOf("{");
 				if (firstIdx >= 0)
@@ -325,7 +320,7 @@ namespace RimGPT
 					if (string.IsNullOrEmpty(responseText))
 						throw new InvalidOperationException("Response text is null or empty after cleanup.");
 
-					// Ideally we would want the last two things and call this sooner, but MEH.  
+					// Ideally we would want the last two things and call this sooner, but MEH.
 					FrequencyPenalty = CalculateFrequencyPenaltyBasedOnLevenshteinDistance(persona.lastSpokenText, responseText);
 					if (FrequencyPenalty == 2 && retry < maxRetries)
 						return await Evaluate(persona, observations, ++retry, "repetitive");
@@ -348,6 +343,7 @@ namespace RimGPT
 
 			return null;
 		}
+
 		public async Task<string> CondenseHistory(Persona persona)
 		{
 			// force secondary (better model)
@@ -362,25 +358,14 @@ namespace RimGPT
 				]
 			};
 
-
-                        var completionResponse = await OpenAIApi.CreateChatCompletion(request, error => Logger.Error(error));
-                        var response = completionResponse.Choices?.FirstOrDefault().Message.Content ?? "";
-                        Logger.Message("Condensed History: " + response);
-                        return response; // The condensed history summary
+			var completionResponse = await OpenAIApi.CreateChatCompletion(request, error => Logger.Error(error));
+			var response = completionResponse.Choices?.FirstOrDefault().Message.Content ?? "";
+			Logger.Message("Condensed History: " + response);
+			return response; // The condensed history summary
 		}
-		public void ReplaceHistory(string reason)
-		{
-			history = [reason];
-		}
-
-		public void ReplaceHistory(string[] reason)
-		{
-			history = [.. reason];
-		}
-		public void ReplaceHistory(List<string> reason)
-		{
-			history = reason;
-		}
+		public void ReplaceHistory(string reason) => history = [reason];
+		public void ReplaceHistory(string[] reason) => history = [.. reason];
+		public void ReplaceHistory(List<string> reason) => history = reason;
 
 		public async Task<(string, string)> SimplePrompt(string input, UserApiConfig userApiConfig = null, string modelId = "")
 		{
@@ -397,39 +382,39 @@ namespace RimGPT
 				modelId = GetCurrentChatGPTModel();
 			}
 
-                        string requestError = null;
-                        var completionResponse = await OpenAIApi.CreateChatCompletion(new CreateChatCompletionRequest()
-                        {
-                                Model = modelId,
-                                Messages =
-                                [
-                                        new ChatMessage() { Role = "system", Content = "You are a creative poet answering in 12 words or less." },
-                                        new ChatMessage() { Role = "user", Content = input }
-                                ]
-                        }, e => requestError = e);
-                        if (currentUserConfig != null)
-                                currentUserConfig.CharactersSent += input.Length;
+			string requestError = null;
+			var completionResponse = await OpenAIApi.CreateChatCompletion(new CreateChatCompletionRequest()
+			{
+				Model = modelId,
+				Messages =
+				[
+					new ChatMessage() { Role = "system", Content = "You are a creative poet answering in 12 words or less." },
+					new ChatMessage() { Role = "user", Content = input }
+				]
+			}, e => requestError = e);
+			if (currentUserConfig != null)
+				currentUserConfig.CharactersSent += input.Length;
 
 			if (userApiConfig != null)
 				OpenAIApi.currentConfig = currentConfig;
 
-                        if (completionResponse.Choices?.Count > 0)
-                        {
-                                var response = completionResponse.Choices[0].Message.Content ?? "";
-                                if (currentUserConfig != null)
-                                        currentUserConfig.CharactersReceived += response.Length;
-                                return (response, null);
-                        }
+			if (completionResponse.Choices?.Count > 0)
+			{
+				var response = completionResponse.Choices[0].Message.Content ?? "";
+				if (currentUserConfig != null)
+					currentUserConfig.CharactersReceived += response.Length;
+				return (response, null);
+			}
 
-                        return (null, requestError ?? "No response");
-                }
+			return (null, requestError ?? "No response");
+		}
 
 		public static void TestKey(Action<string> callback, UserApiConfig userApiConfig, string modelId = "")
 		{
 			Tools.SafeAsync(async () =>
 			{
 				var prompt = "The player has just configured your OpenAI API key in the mod " +
-					 "RimGPT for Rimworld. Greet them with a short response!";
+					"RimGPT for Rimworld. Greet them with a short response!";
 				var dummyAI = new AI();
 				var output = await dummyAI.SimplePrompt(prompt, userApiConfig, modelId);
 				callback(output.Item1 ?? output.Item2);

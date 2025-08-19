@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using System.Xml;
 
 namespace Kevsoft.Ssml
@@ -8,8 +8,7 @@ namespace Kevsoft.Ssml
 		private readonly string _value;
 		private ISsmlWriter _innerWriter;
 
-		public FluentSayAsCharacters(ISsml ssml, string value)
-			 : base(ssml)
+		public FluentSayAsCharacters(ISsml ssml, string value) : base(ssml)
 		{
 			_value = value;
 			_innerWriter = new SayAsWriter("characters", "characters", _value);
@@ -22,10 +21,6 @@ namespace Kevsoft.Ssml
 			return this;
 		}
 
-		public async Task WriteAsync(XmlWriter writer)
-		{
-			await _innerWriter.WriteAsync(writer)
-				 .ConfigureAwait(false);
-		}
+		public async Task WriteAsync(XmlWriter writer) => await _innerWriter.WriteAsync(writer).ConfigureAwait(false);
 	}
 }

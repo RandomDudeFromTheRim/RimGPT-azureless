@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using RimGPT;
 using System;
@@ -44,7 +44,7 @@ namespace OpenAI
 			}
 			else
 			{
-				string message = $"The 'auth.json' file does not exist in the current directory: {userPath}. Please create a JSON file in this format:\n{{\n    \"api_key\": \"sk-...W6yi\"\n}}";
+				var message = $"The 'auth.json' file does not exist in the current directory: {userPath}. Please create a JSON file in this format:\n{{\n    \"api_key\": \"sk-...W6yi\"\n}}";
 				Logger.Error(message);
 			}
 			return default;

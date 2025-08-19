@@ -1,4 +1,4 @@
-﻿using HarmonyLib;
+using HarmonyLib;
 using RimWorld;
 using System;
 using System.Collections.Generic;
@@ -91,44 +91,44 @@ namespace RimGPT
 	{
 		public static Dictionary<(Pawn, Pawn), int> lastOpinions = [];
 
-                public static void Task(Map map)
-                {
-                        if (RimGPTMod.Settings.reportColonistOpinions == false)
-                                return;
+		public static void Task(Map map)
+		{
+			if (RimGPTMod.Settings.reportColonistOpinions == false)
+				return;
 
-                        var opinionMessages = new List<string>();
-                        var colonists = map.mapPawns.FreeColonists.ToList();
-                        var colonistSet = colonists.ToHashSet();
+			var opinionMessages = new List<string>();
+			var colonists = map.mapPawns.FreeColonists.ToList();
+			var colonistSet = colonists.ToHashSet();
 
-                        foreach (var key in lastOpinions.Keys.Where(k => !colonistSet.Contains(k.Item1) || !colonistSet.Contains(k.Item2)).ToList())
-                                lastOpinions.Remove(key);
+			foreach (var key in lastOpinions.Keys.Where(k => !colonistSet.Contains(k.Item1) || !colonistSet.Contains(k.Item2)).ToList())
+				_ = lastOpinions.Remove(key);
 
-                        foreach (var colonist in colonists)
-                                foreach (var otherColonist in colonists)
-                                {
-                                        if (colonist == otherColonist)
-                                                continue;
+			foreach (var colonist in colonists)
+				foreach (var otherColonist in colonists)
+				{
+					if (colonist == otherColonist)
+						continue;
 
-                                        var currentOpinion = colonist.relations.OpinionOf(otherColonist);
+					var currentOpinion = colonist.relations.OpinionOf(otherColonist);
 
-                                        if (lastOpinions.TryGetValue((colonist, otherColonist), out var previousOpinion))
-                                        {
-                                                var trend = currentOpinion == previousOpinion ? "stayed the same" : currentOpinion > previousOpinion ? "improved" : "worsened";
-                                                opinionMessages.Add($"{colonist.Name} current opinion of {otherColonist.Name}: {currentOpinion} (has {trend} since yesterday)");
-                                        }
-                                        else
-                                                opinionMessages.Add($"{colonist.Name} current opinion of {otherColonist.Name}: {currentOpinion}");
+					if (lastOpinions.TryGetValue((colonist, otherColonist), out var previousOpinion))
+					{
+						var trend = currentOpinion == previousOpinion ? "stayed the same" : currentOpinion > previousOpinion ? "improved" : "worsened";
+						opinionMessages.Add($"{colonist.Name} current opinion of {otherColonist.Name}: {currentOpinion} (has {trend} since yesterday)");
+					}
+					else
+						opinionMessages.Add($"{colonist.Name} current opinion of {otherColonist.Name}: {currentOpinion}");
 
-                                        lastOpinions[(colonist, otherColonist)] = currentOpinion;
-                                }
+					lastOpinions[(colonist, otherColonist)] = currentOpinion;
+				}
 
-                        if (opinionMessages.Any())
-                        {
-                                var consolidatedMessage = opinionMessages.Join(delimiter: "\n");
-                                Personas.Add(consolidatedMessage, 2);
-                        }
-                }
-        }
+			if (opinionMessages.Any())
+			{
+				var consolidatedMessage = opinionMessages.Join(delimiter: "\n");
+				Personas.Add(consolidatedMessage, 2);
+			}
+		}
+	}
 
 	// reports on colony Energy status, is skipped if the colony does not have any energy buildings or needs
 	//
@@ -145,7 +145,7 @@ namespace RimGPT
 			var consumers = new List<EnergyConsumer>();
 
 			// Calculate Total Power Generated and populate producers list
-			float totalPowerGenerated = 0f;
+			var totalPowerGenerated = 0f;
 			foreach (var powerPlant in map.listerBuildings.allBuildingsColonist.Where(building => building.GetComp<CompPowerPlant>() != null))
 			{
 				var compPowerPlant = powerPlant.GetComp<CompPowerPlant>();
@@ -157,12 +157,12 @@ namespace RimGPT
 			}
 
 			// Calculate Total Power Needs and populate consumers list
-			float totalPowerNeeded = 0f;
+			var totalPowerNeeded = 0f;
 			foreach (var consumerBuilding in map.listerBuildings.allBuildingsColonist.Select(building => building.GetComp<CompPowerTrader>()).Where(comp => comp != null && comp.PowerOutput < 0))
 			{
 				if (consumerBuilding.PowerOn)
 				{
-					float powerConsumed = consumerBuilding.Props.basePowerConsumption;
+					var powerConsumed = consumerBuilding.Props.basePowerConsumption;
 					totalPowerNeeded += powerConsumed;
 					consumers.Add(new EnergyConsumer { Label = consumerBuilding.parent.Label, PowerConsumed = powerConsumed });
 				}
@@ -180,8 +180,7 @@ namespace RimGPT
 			else
 				powerStatus = "Stable";
 
-
-			EnergyData energyData = new EnergyData
+			var energyData = new EnergyData
 			{
 				Producers = producers,
 				Consumers = consumers,
@@ -230,7 +229,7 @@ namespace RimGPT
 						if (room.stats != null)
 							foreach (var statPair in room.stats)
 								if (statPair.Key != null)
-									statsStringBuilder.Append($"{statPair.Key.label} is {statPair.Value}, ");
+									_ = statsStringBuilder.Append($"{statPair.Key.label} is {statPair.Value}, ");
 
 						var statsString = statsStringBuilder.ToString().TrimEnd(',', ' ');
 
@@ -263,13 +262,15 @@ namespace RimGPT
 
 			var currentResearchDef = Find.ResearchManager.currentProj; // could be null if no current research
 
-			var completedResearchDefs = DefDatabase<ResearchProjectDef>.AllDefsListForReading
-																			.Where(r => r.IsFinished)
-																			.ToList();
+			var completedResearchDefs = DefDatabase<ResearchProjectDef>
+				.AllDefsListForReading
+				.Where(r => r.IsFinished)
+				.ToList();
 
-			var availableResearchDefs = DefDatabase<ResearchProjectDef>.AllDefsListForReading
-																			.Where(r => !r.IsFinished && r.PrerequisitesCompleted)
-																			.ToList();
+			var availableResearchDefs = DefDatabase<ResearchProjectDef>
+				.AllDefsListForReading
+				.Where(r => !r.IsFinished && r.PrerequisitesCompleted)
+				.ToList();
 
 			RecordKeeper.CurrentResearch = currentResearchDef;
 			RecordKeeper.CompletedResearch = completedResearchDefs;
@@ -312,15 +313,15 @@ namespace RimGPT
 			var quadrumsMonthsSeasonsString = quadrumsMonthsSeasons.Join();
 
 			var message = $"Current Season: {seasonName}, Yearly Seasons Overview: {quadrumsMonthsSeasonsString}\n " +
-								$"Each Quadrum lasts 15 days, and there are 4 Quadrums per year\n" +
-								$"Today is: {fullDateString}, The current Settlement name is: {settlementName}\n " +
-								$"Our colony is {years} years {quadrums} quadrums {days} days old\n " +
-								$"Current weather: {currentWeather.LabelCap}\n " +
-								$"Temperature: {map.mapTemperature.OutdoorTemp:0.#}°C\n " +
-								$"Area: {biomeName}, {biomeDescription}";
+							$"Each Quadrum lasts 15 days, and there are 4 Quadrums per year\n" +
+							$"Today is: {fullDateString}, The current Settlement name is: {settlementName}\n " +
+							$"Our colony is {years} years {quadrums} quadrums {days} days old\n " +
+							$"Current weather: {currentWeather.LabelCap}\n " +
+							$"Temperature: {map.mapTemperature.OutdoorTemp:0.#}°C\n " +
+							$"Area: {biomeName}, {biomeDescription}";
 			Personas.Add(message, 1);
 			RecordKeeper.ColonySetting = message;
-			//Logger.Message($"RecordKeeper.ColonySetting: {RecordKeeper.ColonySetting}");			
+			//Logger.Message($"RecordKeeper.ColonySetting: {RecordKeeper.ColonySetting}");
 		}
 	}
 

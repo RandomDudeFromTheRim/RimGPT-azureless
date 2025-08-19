@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using System.Xml;
 
@@ -24,8 +24,7 @@ namespace Kevsoft.Ssml
 
 			var sayAsWriter = new SayAsWriter("time", format, value);
 
-			await sayAsWriter.WriteAsync(writer)
-				 .ConfigureAwait(false);
+			await sayAsWriter.WriteAsync(writer).ConfigureAwait(false);
 		}
 
 		private static string GetValue(TimeSpan value, TimeFormat format)

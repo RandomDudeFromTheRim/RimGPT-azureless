@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -10,21 +10,6 @@ namespace RimGPT
 	public static class UX
 	{
 		public const float ButtonHeight = 24f;
-
-		#region Listing_Standard extensions
-		/*public static void SmallLabel(this Listing_Standard list, string text, string tooltip = null)
-		{
-			var rect = list.GetRect(20f);
-			var anchor = Text.Anchor;
-			var font = Text.Font;
-			Text.Font = GameFont.Tiny;
-			Text.Anchor = TextAnchor.UpperLeft;
-			Widgets.Label(rect, text);
-			Text.Anchor = anchor;
-			Text.Font = font;
-			if (tooltip != null)
-				TooltipHandler.TipRegion(rect, tooltip);
-		}*/
 
 		public static void Label(this Listing_Standard list, string hexColor, string textLeft, string textRight = "", string tooltip = null, float gap = 6f)
 		{
@@ -88,9 +73,7 @@ namespace RimGPT
 				value = Mathf.RoundToInt(value / roundTo) * roundTo;
 			list.Gap(2f);
 		}
-		#endregion Listing_Standard extensions
 
-		#region Other UX elements & primitive extensions
 		public static void HorizontalSlider(Rect rect, ref float value, float leftValue, float rightValue, string label, float roundTo = -1f, string tooltip = null, GameFont? gameFont = null)
 		{
 			var first = rect.width / 2.5f;
@@ -128,7 +111,7 @@ namespace RimGPT
 		}
 
 		public static string Float(this int value, int decimals, string unit = null)
-			 => value.ToString("F" + decimals) + (unit == null ? "" : $" {unit}");
+			=> value.ToString("F" + decimals) + (unit == null ? "" : $" {unit}");
 
 		public static int Milliseconds(this float f) => Mathf.FloorToInt(f * 1000);
 
@@ -139,65 +122,7 @@ namespace RimGPT
 				return $"{percentageValue:+0.##;-0.##;0}%";
 			return $"{percentageValue:0.##;-0.##;0}%";
 		}
-		#endregion Other UX elements & primitive extensions
 
-		#region Original Provider & Model Menus
-		// Menu to select the Api Provider
-		//      public static void ApiProviderMenu(Action<string> action)
-		//{
-		//	var options = new List<FloatMenuOption> { new("API Provider", () => action(default)) };
-		//	foreach (var config in OpenAIApi.apiConfigs.Where(a => a.Models.Count > 0))
-		//	{
-		//		var providerName = config.Provider.ToString();
-		//		var label = providerName;
-		//		options.Add(new FloatMenuOption(label, () =>
-		//		{
-		//			if (providerName != default)
-		//			{
-		//				action(providerName);
-		//				// Update GPTVersionMenu upon selection
-		//				//RimGPT.RimGPTSettings.ChatGPTModelPrimary
-		//			}
-		//		}));
-		//	}
-		//	Find.WindowStack.Add(new FloatMenu(options));
-
-		//}
-
-		//public static void GPTVersionMenu(Action<string> action, string apiProviderPrimary)
-		//{
-		//	var options = new List<FloatMenuOption> { new("ChatGPT Version", () => action(default)) };
-		//	if (string.IsNullOrEmpty(apiProviderPrimary) == false)
-		//	{
-		//		// apiConfigs is a list of Api Configurations and contains the list of Models as OpenAIModels
-		//		var models = OpenAIApi.apiConfigs.Find(c => c.Provider.ToString() == apiProviderPrimary)?.Models;
-
-		//		foreach (var model in models ?? Enumerable.Empty<OpenAIModel>())
-		//		{
-		//			var version = model.Id;
-		//			var label = version;
-		//			if (model.Id.Contains("1106"))
-		//				label = $"{version} [PREFERRED]";
-		//			options.Add(new FloatMenuOption(label, () =>
-		//			{
-		//				if (version != default)
-		//				{
-		//					if (version.Contains("gpt-4"))
-		//					{
-		//						var window = Dialog_MessageBox.CreateConfirmation("GPT-4 can create more costs and is slower to answer, do you really want to proceed?", () => action(version), true, "Attention", WindowLayer.Super);
-		//						Find.WindowStack.Add(window);
-		//					}
-		//					else
-		//						action(version);
-		//				}
-		//			}));
-		//		}
-		//	}
-		//	Find.WindowStack.Add(new FloatMenu(options));
-		//}
-		#endregion Original Provider & Model Menus
-
-		#region Voice & TTS
 		public static void LanguageChoiceMenu<T>(IEnumerable<T> languages, Func<T, string> itemFunc, Action<T> action)
 		{
 			var options = new List<FloatMenuOption> { new("Game Language", () => action(default)) };
@@ -294,6 +219,5 @@ namespace RimGPT
 				Find.WindowStack.Add(new FloatMenu(options));
 			}
 		}
-		#endregion Voice & TTS
 	}
 }

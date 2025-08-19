@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
@@ -61,37 +61,30 @@ namespace Kevsoft.Ssml
 
 		public async Task Write(XmlWriter writer)
 		{
-			await writer.WriteStartDocumentAsync()
-				 .ConfigureAwait(false);
+			await writer.WriteStartDocumentAsync().ConfigureAwait(false);
 
-			await writer.WriteStartElementAsync(null, "speak", "http://www.w3.org/2001/10/synthesis")
-				 .ConfigureAwait(false);
+			await writer.WriteStartElementAsync(null, "speak", "http://www.w3.org/2001/10/synthesis").ConfigureAwait(false);
 
 			if (!_configuration.ExcludeSpeakVersion)
 			{
-				await writer.WriteAttributeStringAsync(null, "version", null, _version)
-					 .ConfigureAwait(false);
+				await writer.WriteAttributeStringAsync(null, "version", null, _version).ConfigureAwait(false);
 			}
 
-			await writer.WriteAttributeStringAsync("xml", "lang", null, _lang)
-							.ConfigureAwait(false);
+			await writer.WriteAttributeStringAsync("xml", "lang", null, _lang).ConfigureAwait(false);
 
 			for (var index = 0; index < _says.Count; index++)
 			{
 				var say = _says[index];
 
-				await say.WriteAsync(writer)
-					 .ConfigureAwait(false);
+				await say.WriteAsync(writer).ConfigureAwait(false);
 
 				if (index != _says.Count - 1)
 				{
-					await writer.WriteStringAsync(" ")
-						 .ConfigureAwait(false);
+					await writer.WriteStringAsync(" ").ConfigureAwait(false);
 				}
 			}
 
-			await writer.WriteEndElementAsync()
-				 .ConfigureAwait(false);
+			await writer.WriteEndElementAsync().ConfigureAwait(false);
 
 			await writer.WriteEndDocumentAsync();
 		}
@@ -127,18 +120,4 @@ namespace Kevsoft.Ssml
 			return this;
 		}
 	}
-
-	/*
-	public enum InterpretAs
-	{
-		 None = 0,
-		 Date,
-		 Time,
-		 Telephone,
-		 Characters,
-		 Cardinal,
-		 Ordinal
-	}
-
-	*/
 }

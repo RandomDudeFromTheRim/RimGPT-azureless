@@ -1,4 +1,4 @@
-﻿namespace Kevsoft.Ssml
+namespace Kevsoft.Ssml
 {
 	public interface IFluentSayAsCharacters : ISsml
 	{

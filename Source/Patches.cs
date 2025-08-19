@@ -1,4 +1,4 @@
-﻿using HarmonyLib;
+using HarmonyLib;
 using RimWorld;
 using RimWorld.Planet;
 using System;
@@ -21,10 +21,7 @@ namespace RimGPT
 	[HarmonyPatch(typeof(LongEventHandler), nameof(LongEventHandler.LongEventsOnGUI))]
 	public static class LongEventHandler_LongEventsOnGUI_Patch
 	{
-		public static void Postfix()
-		{
-			Logger.Log();
-		}
+		public static void Postfix() => Logger.Log();
 	}
 
 	// add welcome - need to configure message
@@ -115,10 +112,7 @@ namespace RimGPT
 	[HarmonyPatch(typeof(GenScene), nameof(GenScene.GoToMainMenu))]
 	public static class GenScene_GoToMainMenu_Patch
 	{
-		public static void Postfix()
-		{
-			Personas.Reset("The player went to the main menu");
-		}
+		public static void Postfix() => Personas.Reset("The player went to the main menu");
 	}
 
 	// reset history when a game is loaded
@@ -126,10 +120,7 @@ namespace RimGPT
 	[HarmonyPatch(typeof(GameDataSaveLoader), nameof(GameDataSaveLoader.LoadGame), [typeof(string)])]
 	public static class GameDataSaveLoader_LoadGame_Patch
 	{
-		public static void Postfix(string saveFileName)
-		{
-			Personas.Reset($"The player loaded the game file '{saveFileName}'");
-		}
+		public static void Postfix(string saveFileName) => Personas.Reset($"The player loaded the game file '{saveFileName}'");
 	}
 
 	// send game started info
@@ -176,10 +167,7 @@ namespace RimGPT
 	[HarmonyPatch(typeof(Page_SelectScenario), nameof(Page_SelectScenario.DoScenarioListEntry))]
 	public static class Page_SelectScenario_DoScenarioListEntry_Patch
 	{
-		public static void Postfix(Page_SelectScenario __instance)
-		{
-			Differ.IfChangedPersonasAdd("scenario", __instance.curScen?.name, "The player chose scenario '{VALUE}'", 5);
-		}
+		public static void Postfix(Page_SelectScenario __instance) => Differ.IfChangedPersonasAdd("scenario", __instance.curScen?.name, "The player chose scenario '{VALUE}'", 5);
 	}
 
 	// send storyteller selection
@@ -199,10 +187,7 @@ namespace RimGPT
 	[HarmonyPatch(typeof(StartingPawnUtility), nameof(StartingPawnUtility.RandomizeInPlace))]
 	public static class StartingPawnUtility_RandomizeInPlace_Patch
 	{
-		public static void Postfix(Pawn p, Pawn __result)
-		{
-			Personas.Add($"Player clicks 'Randomize' and replaces {p.LabelShortCap} with {__result.LabelShortCap}", 1);
-		}
+		public static void Postfix(Pawn p, Pawn __result) => Personas.Add($"Player clicks 'Randomize' and replaces {p.LabelShortCap} with {__result.LabelShortCap}", 1);
 	}
 
 	// send colonist details while choosing starting pawns
@@ -362,9 +347,9 @@ namespace RimGPT
 		public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
 		{
 			return new CodeMatcher(instructions)
-				 .MatchStartForward(new CodeMatch(CodeInstruction.StoreField(typeof(Pawn_JobTracker), nameof(Pawn_JobTracker.curDriver))))
-				 .SetInstruction(CodeInstruction.Call(() => Handle(null, null)))
-				 .Instructions();
+				.MatchStartForward(new CodeMatch(CodeInstruction.StoreField(typeof(Pawn_JobTracker), nameof(Pawn_JobTracker.curDriver))))
+				.SetInstruction(CodeInstruction.Call(() => Handle(null, null)))
+				.Instructions();
 		}
 	}
 
@@ -437,10 +422,7 @@ namespace RimGPT
 	[HarmonyPatch(typeof(AlertsReadout), nameof(AlertsReadout.CheckAddOrRemoveAlert))]
 	public static class AlertsReadout_CheckAddOrRemoveAlert_Patch
 	{
-		public static void Prefix(Alert alert, List<Alert> ___activeAlerts, out (bool, string) __state)
-		{
-			__state = (___activeAlerts.Contains(alert), alert.Label);
-		}
+		public static void Prefix(Alert alert, List<Alert> ___activeAlerts, out (bool, string) __state) => __state = (___activeAlerts.Contains(alert), alert.Label);
 
 		public static void Postfix(Alert alert, List<Alert> ___activeAlerts, (bool, string) __state)
 		{
@@ -462,10 +444,7 @@ namespace RimGPT
 	[HarmonyPatch(new Type[] { typeof(Message), typeof(bool) })]
 	public static class Messages_Message_Patch
 	{
-		public static void Postfix(Message msg)
-		{
-			Personas.Add(msg.text, 2);
-		}
+		public static void Postfix(Message msg) => Personas.Add(msg.text, 2);
 	}
 
 	// send finished construction
@@ -556,9 +535,9 @@ namespace RimGPT
 			var pawnType = GetPawnType(___pawn);
 			var recipientType = GetPawnType(recipient);
 			var message = $"{pawnType} '{___pawn.Name.ToStringShort}' interacted with {recipientType} '{recipient.Name.ToStringShort}'. " +
-							$"Opinions --- {___pawn.Name.ToStringShort}'s opinion of {recipient.Name.ToStringShort}: {opinionOfRecipient}, " +
-							$"{recipient.Name.ToStringShort}'s opinion of {___pawn.Name.ToStringShort}: {opinionOfPawn}. " +
-							$"Interaction: '{intDef?.label ?? "something"}' initiated by {___pawn.Name.ToStringShort}.";
+				$"Opinions --- {___pawn.Name.ToStringShort}'s opinion of {recipient.Name.ToStringShort}: {opinionOfRecipient}, " +
+				$"{recipient.Name.ToStringShort}'s opinion of {___pawn.Name.ToStringShort}: {opinionOfPawn}. " +
+				$"Interaction: '{intDef?.label ?? "something"}' initiated by {___pawn.Name.ToStringShort}.";
 
 			Personas.Add(message, 2);
 		}
@@ -625,41 +604,39 @@ namespace RimGPT
 			if (map == null)
 				return;
 
-                        lock (updateTasks)
-                        {
-                                foreach (var key in updateTasks.Keys.ToList())
-                                {
-                                        var task = updateTasks[key];
+			lock (updateTasks)
+			{
+				foreach (var key in updateTasks.Keys.ToList())
+				{
+					var task = updateTasks[key];
 
-                                        task.updateTickCounter--;
-                                        if (task.updateTickCounter < 0)
-                                        {
-                                                var interval = Math.Max(1, task.updateIntervalFunc());
-                                                task.updateTickCounter = interval;
-                                                try
-                                                {
-                                                        task.action(map);
-                                                }
-                                                catch (Exception ex)
-                                                {
-                                                        Logger.Error($"Update task '{key}' failed: {ex}");
-                                                }
-                                        }
+					task.updateTickCounter--;
+					if (task.updateTickCounter < 0)
+					{
+						var interval = Math.Max(1, task.updateIntervalFunc());
+						task.updateTickCounter = interval;
+						try
+						{
+							task.action(map);
+						}
+						catch (Exception ex)
+						{
+							Logger.Error($"Update task '{key}' failed: {ex}");
+						}
+					}
 
-                                        updateTasks[key] = task;
-                                }
-                        }
-                }
-        }
-
-
+					updateTasks[key] = task;
+				}
+			}
+		}
+	}
 
 	[HarmonyPatch(typeof(DesignationManager), nameof(DesignationManager.AddDesignation))]
 	public static class DesignationManager_AddDesignation_Patch
 	{
 		public static void Postfix(Designation newDes)
 		{
-			(string order, string targetLabel) = DesignationHelpers.GetOrderAndTargetLabel(newDes);
+			(var order, var targetLabel) = DesignationHelpers.GetOrderAndTargetLabel(newDes);
 
 			// bail if its a plan, the AI gets confused and thinks we're building stuff when its just planning.  using string because
 			// of mods.  it might not be full-proof but should cover most use-cases.
@@ -670,27 +647,20 @@ namespace RimGPT
 		}
 	}
 
-
-
 	// Patch for Designator_Cancel to track when the player issues a cancel
 	[HarmonyPatch(typeof(Designator_Cancel))]
 	public static class Designator_Cancel_Patch
 	{
 		[HarmonyPrefix, HarmonyPatch(nameof(Designator_Cancel.DesignateSingleCell))]
-		public static void PrefixForDesignateSingleCell(IntVec3 c)
-		{
+		public static void PrefixForDesignateSingleCell(IntVec3 c) =>
 			//Logger.Message($"track cancel cell at  {c}");
 			DesignationHelpers.TrackCancelCell(c);
-		}
 
 		[HarmonyPrefix, HarmonyPatch(nameof(Designator_Cancel.DesignateThing))]
-		public static void PrefixForDesignateThing(Thing t)
-		{
+		public static void PrefixForDesignateThing(Thing t) =>
 			//Logger.Message($"track cancel thing  {t}");
 			DesignationHelpers.TrackCancelThing(t);
-		}
 	}
-
 
 	// Patch for DesignationManager.RemoveDesignation to process only player-initiated cancellations
 	[HarmonyPatch(typeof(DesignationManager), nameof(DesignationManager.RemoveDesignation))]
@@ -700,13 +670,12 @@ namespace RimGPT
 		{
 
 			// Checks if the action was cancelled for either a Thing or Cell target, bailing out only if neither is found.
-			bool wasCancelledByPlayer = des.target.Cell != null && DesignationHelpers.IsTrackedCancelCell(des.target.Cell);
+			var wasCancelledByPlayer = des.target.Cell != null && DesignationHelpers.IsTrackedCancelCell(des.target.Cell);
 
 			if (!wasCancelledByPlayer)
 				return;
 
-
-			(string order, string targetLabel) = DesignationHelpers.GetOrderAndTargetLabel(des);
+			(var order, var targetLabel) = DesignationHelpers.GetOrderAndTargetLabel(des);
 
 			// Bail if it's a plan to avoid ChatGPT getting confused.
 			if (targetLabel.ToLowerInvariant().Contains("plan"))
@@ -722,20 +691,19 @@ namespace RimGPT
 	{
 		public static void Postfix(BuildableDef sourceDef, IntVec3 center, Map map)
 		{
-			Blueprint blueprint = map.thingGrid.ThingAt<Blueprint>(center);
+			var blueprint = map.thingGrid.ThingAt<Blueprint>(center);
 
 			if (blueprint != null)
 			{
-				string targetLabel = sourceDef.label;
+				var targetLabel = sourceDef.label;
 
-				ThingDef stuffToUse = ((Blueprint_Build)blueprint).stuffToUse;
-				string stuffLabel = stuffToUse?.label ?? "";
+				var stuffToUse = ((Blueprint_Build)blueprint).stuffToUse;
+				var stuffLabel = stuffToUse?.label ?? "";
 
 				DesignationQueueManager.EnqueueDesignation(OrderType.Designate, "WorkTagConstructing".Translate(), $"{stuffLabel} {targetLabel}");
 			}
 		}
 	}
-
 
 	[HarmonyPatch(typeof(Blueprint), nameof(Blueprint.DeSpawn))]
 	public static class Blueprint_Cancel_Patch
@@ -746,11 +714,11 @@ namespace RimGPT
 			{
 				if (__instance is Blueprint_Build blueprintBuild)
 				{
-					ThingDef stuffToUse = blueprintBuild.stuffToUse;
-					string stuffLabel = stuffToUse?.label ?? "";
+					var stuffToUse = blueprintBuild.stuffToUse;
+					var stuffLabel = stuffToUse?.label ?? "";
 
 					// we dont want the word (blueprint) here
-					string labelWithoutBlueprint = __instance.def.label.Replace("(blueprint)", "").Trim();
+					var labelWithoutBlueprint = __instance.def.label.Replace("(blueprint)", "").Trim();
 
 					DesignationQueueManager.EnqueueDesignation(OrderType.Cancel, "WorkTagConstructing".Translate(), $"{stuffLabel} {labelWithoutBlueprint}");
 				}
@@ -776,11 +744,11 @@ namespace RimGPT
 	{
 		public static void Postfix(Job job, Pawn_JobTracker __instance)
 		{
-			Pawn pawn = __instance.pawn;
+			var pawn = __instance.pawn;
 			if (pawn == null || job?.def == null)
 				return; // Safety check for null references
 
-			string targetLabels = GetTargetLabels(job);
+			var targetLabels = GetTargetLabels(job);
 
 			List<string> queueList = [];
 			if (job.targetQueueA != null && job.targetQueueA.Count > 0)
@@ -799,9 +767,9 @@ namespace RimGPT
 				jobDefName = "working"; // Fallback safe word
 			}
 
-			string queueMessagePart = queueList.Count > 0 ? $" and is queuing {string.Join(", ", queueList)}" : "";
-			string spaceIfNeeded = string.IsNullOrEmpty(targetLabels) ? "" : " ";
-			string message = $"Player orders {pawn.LabelShort} to prioritize '{jobDefName}' on{spaceIfNeeded}{targetLabels}{queueMessagePart}.";
+			var queueMessagePart = queueList.Count > 0 ? $" and is queuing {string.Join(", ", queueList)}" : "";
+			var spaceIfNeeded = string.IsNullOrEmpty(targetLabels) ? "" : " ";
+			var message = $"Player orders {pawn.LabelShort} to prioritize '{jobDefName}' on{spaceIfNeeded}{targetLabels}{queueMessagePart}.";
 
 			Personas.Add(message, 2); // Add the resolved message to the message queue.
 		}
@@ -842,12 +810,8 @@ namespace RimGPT
 			}
 		}
 
-		private static string GetLabelFor(LocalTargetInfo target)
-		{
-			return target.HasThing ? target.Thing.LabelShort : target.ToString();
-		}
+		private static string GetLabelFor(LocalTargetInfo target) => target.HasThing ? target.Thing.LabelShort : target.ToString();
 	}
-
 
 	// when pawn is forced to quit working on something.
 	[HarmonyPatch(typeof(Pawn_JobTracker), "EndCurrentJob")]
@@ -859,24 +823,24 @@ namespace RimGPT
 			try
 			{
 				// Accessing the current job before it's potentially set to null and ensuring all references are valid.
-				Job curJob = __instance?.curJob;
+				var curJob = __instance?.curJob;
 				if (curJob != null && curJob.def != null && condition == JobCondition.InterruptForced)
 				{
-					string jobLabel = __instance.curJob.def.label;
+					var jobLabel = __instance.curJob.def.label;
 
 					// If the job label is empty, do not proceed with reporting.
 					if (string.IsNullOrEmpty(jobLabel))
 						return; // If the job label is empty, do not proceed with reporting.
 
 					// Ensuring pawn reference is not null before accessing its properties.
-					Pawn pawn = __instance.pawn;
+					var pawn = __instance.pawn;
 					if (pawn == null)
 						return;
 
-					string pawnName = pawn.LabelShort.CapitalizeFirst();
+					var pawnName = pawn.LabelShort.CapitalizeFirst();
 
 					// Construct and add message safely.
-					string message = $"{pawnName} was forced to quit working on {jobLabel}.";
+					var message = $"{pawnName} was forced to quit working on {jobLabel}.";
 					Personas.Add(message, 2);
 				}
 			}

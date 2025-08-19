@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using System.Xml;
 
 namespace Kevsoft.Ssml
@@ -8,11 +8,7 @@ namespace Kevsoft.Ssml
 		private readonly string _value = value;
 		private ISsmlWriter _ssmlWriter = new PlainTextWriter(value);
 
-		public async Task WriteAsync(XmlWriter xml)
-		{
-			await _ssmlWriter.WriteAsync(xml)
-				 .ConfigureAwait(false);
-		}
+		public async Task WriteAsync(XmlWriter xml) => await _ssmlWriter.WriteAsync(xml).ConfigureAwait(false);
 
 		public IFluentSay AsAlias(string alias)
 		{
@@ -39,10 +35,7 @@ namespace Kevsoft.Ssml
 			return this;
 		}
 
-		public IFluentSay Emphasised()
-		{
-			return Emphasised(EmphasiseLevel.NotSet);
-		}
+		public IFluentSay Emphasised() => Emphasised(EmphasiseLevel.NotSet);
 
 		public IFluentSay Emphasised(EmphasiseLevel level)
 		{

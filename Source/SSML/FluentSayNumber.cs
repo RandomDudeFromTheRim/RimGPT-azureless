@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Threading.Tasks;
 using System.Xml;
 
@@ -24,10 +24,6 @@ namespace Kevsoft.Ssml
 			return _ssml;
 		}
 
-		public async Task WriteAsync(XmlWriter writer)
-		{
-			await _writer.WriteAsync(writer)
-				 .ConfigureAwait(false);
-		}
+		public async Task WriteAsync(XmlWriter writer) => await _writer.WriteAsync(writer).ConfigureAwait(false);
 	}
 }

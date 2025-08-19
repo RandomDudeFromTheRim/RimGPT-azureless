@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using RimGPT;
 using System;
 using System.Collections.Generic;
@@ -18,10 +18,7 @@ namespace OpenAI
 		/// <summary> The current API configuration being used. ApiConfig contains ApiKeys, Endpoints, BaseURLs and a list of Models for each API Provider.</summary>
 		public static ApiConfig currentConfig = apiConfigs.FirstOrDefault();
 
-		public static void SwitchConfig(string provider)
-		{
-			currentConfig = apiConfigs.GetConfig(provider);
-		}
+		public static void SwitchConfig(string provider) => currentConfig = apiConfigs.GetConfig(provider);
 
 		public static JsonSerializerSettings settings = Configuration.JsonSerializerSettings;
 
@@ -34,18 +31,18 @@ namespace OpenAI
 		{
 			try
 			{
-				UnityWebRequestAsyncOperation asyncOperation = request.SendWebRequest();
+				var asyncOperation = request.SendWebRequest();
 				while (!asyncOperation.isDone && RimGPTMod.Running)
 					await Task.Delay(200);
 			}
 			catch (Exception exception)
 			{
-				string error = $"Error communicating with OpenAI: {exception}";
+				var error = $"Error communicating with OpenAI: {exception}";
 				errorCallback?.Invoke(error);
 				return default;
 			}
 
-			string response = request.downloadHandler.text.Trim();
+			var response = request.downloadHandler.text.Trim();
 			//if (Tools.DEBUG) Logger.Message($"response: {response}"); // TEMP
 			if (response != null)
 			{
@@ -54,10 +51,10 @@ namespace OpenAI
 				if (response.Contains("}") == false)
 					response += "}";
 			}
-			long code = request.responseCode;
+			var code = request.responseCode;
 			if (code >= 300)
 			{
-				string error = $"Got {code} response from OpenAI: {response}";
+				var error = $"Got {code} response from OpenAI: {response}";
 				errorCallback?.Invoke(error);
 				return default;
 			}
@@ -68,7 +65,7 @@ namespace OpenAI
 			}
 			catch (Exception)
 			{
-				string error = $"Error while decoding response from OpenAI: {response}";
+				var error = $"Error while decoding response from OpenAI: {response}";
 				errorCallback?.Invoke(error);
 				return default;
 			}
@@ -84,7 +81,7 @@ namespace OpenAI
 		/// <returns>A Task containing the response from the request as the specified type.</returns>
 		private static async Task<T> DispatchRequest<T>(string path, string method, byte[] payload = null, Action<string> errorCallback = null, List<IMultipartFormSection> form = null) where T : IResponse
 		{
-			using UnityWebRequest request = new UnityWebRequest(path, method);
+			using var request = new UnityWebRequest(path, method);
 			request.SetHeaders(currentConfig, ContentType.ApplicationJson);
 			request.downloadHandler = new DownloadHandlerBuffer();
 
@@ -93,15 +90,13 @@ namespace OpenAI
 
 			if (form != null)
 			{
-				byte[] boundary = UnityWebRequest.GenerateBoundary();
-				byte[] formSections = UnityWebRequest.SerializeFormSections(form, boundary);
-				string contentType = $"{ContentType.MultipartFormData}; boundary={Encoding.UTF8.GetString(boundary)}";
+				var boundary = UnityWebRequest.GenerateBoundary();
+				var formSections = UnityWebRequest.SerializeFormSections(form, boundary);
+				var contentType = $"{ContentType.MultipartFormData}; boundary={Encoding.UTF8.GetString(boundary)}";
 				request.uploadHandler = new UploadHandlerRaw(formSections) { contentType = contentType };
 			}
 			return await ProcessRequest<T>(request, errorCallback);
 		}
-
-		#region Unused In RimGPT
 
 		/// <summary>Dispatches an HTTP request to the specified path with the specified method and optional payload.</summary>
 		/// <param name="path">The path to send the request to.</param>
@@ -113,20 +108,20 @@ namespace OpenAI
 		/// <param name="errorCallback">Action to call in case of an error.</param>
 		private static async Task DispatchRequest<T>(string path, string method, Action<List<T>> onResponse, Action onComplete, CancellationTokenSource token, byte[] payload = null, Action<string> errorCallback = null) where T : IResponse
 		{
-			using UnityWebRequest request = UnityWebRequest.Put(path, payload);
+			using var request = UnityWebRequest.Put(path, payload);
 			request.method = method;
 			request.SetHeaders(currentConfig, ContentType.ApplicationJson);
 
-			UnityWebRequestAsyncOperation asyncOperation = request.SendWebRequest();
+			var asyncOperation = request.SendWebRequest();
 
 			do
 			{
 				List<T> dataList = [];
-				string[] lines = request.downloadHandler.text.Split('\n').Where(line => line != "").ToArray();
+				var lines = request.downloadHandler.text.Split('\n').Where(line => line != "").ToArray();
 
-				foreach (string line in lines)
+				foreach (var line in lines)
 				{
-					string value = line.Replace("data: ", "");
+					var value = line.Replace("data: ", "");
 
 					if (value.Contains("[DONE]"))
 					{
@@ -134,12 +129,12 @@ namespace OpenAI
 						break;
 					}
 
-					T data = JsonConvert.DeserializeObject<T>(value, settings);
+					var data = JsonConvert.DeserializeObject<T>(value, settings);
 
 					if (data?.Error != null)
 					{
-						ApiError apiError = data.Error;
-						string error = $"Error Message: {apiError.Message}\nError Type: {apiError.Type}\n";
+						var apiError = data.Error;
+						var error = $"Error Message: {apiError.Message}\nError Type: {apiError.Type}\n";
 						errorCallback.Invoke(error);
 					}
 					else
@@ -156,8 +151,6 @@ namespace OpenAI
 			onComplete?.Invoke();
 		}
 
-		#endregion Unused In RimGPT
-
 		/// <summary>Create byte array payload from the given request object that contains the parameters. </summary>
 		/// <param name="request">The request object that contains the parameters of the payload.</param>
 		/// <typeparam name="T">type of the request object.</typeparam>
@@ -167,7 +160,7 @@ namespace OpenAI
 			if (request == null)
 				Logger.Error($"Request object cannot be null. Type: {nameof(request)}");
 
-			string json = JsonConvert.SerializeObject(request, settings);
+			var json = JsonConvert.SerializeObject(request, settings);
 			return Encoding.UTF8.GetBytes(json);
 		}
 
@@ -177,8 +170,6 @@ namespace OpenAI
 			return await DispatchRequest<ListModelsResponse>
 				(currentConfig.Endpoints.ListModels, UnityWebRequest.kHttpVerbGET);
 		}
-
-		#region Unused In RimGPT
 
 		/// <summary>Retrieves a model instance, providing basic information about the model such as the owner and permissioning.</summary>
 		/// <param name="id">The ID of the model to use for this request</param>
@@ -194,7 +185,7 @@ namespace OpenAI
 		/// <returns>See <see cref="CreateCompletionResponse"/></returns>
 		public static async Task<CreateCompletionResponse> CreateCompletion(CreateCompletionRequest request)
 		{
-			byte[] payload = CreatePayload(request);
+			var payload = CreatePayload(request);
 			return await DispatchRequest<CreateCompletionResponse>
 				(currentConfig.Endpoints.CreateCompletion, UnityWebRequest.kHttpVerbPOST, payload);
 		}
@@ -207,27 +198,23 @@ namespace OpenAI
 		public static async Task CreateCompletionAsync(CreateCompletionRequest request, Action<List<CreateCompletionResponse>> onResponse, Action onComplete, CancellationTokenSource token)
 		{
 			request.Stream = true;
-			byte[] payload = CreatePayload(request);
+			var payload = CreatePayload(request);
 
 			// In the original Unity plugin, this was not awaited and the method was void instead of async Task
 			await DispatchRequest
 				(currentConfig.Endpoints.CreateCompletion, UnityWebRequest.kHttpVerbPOST, onResponse, onComplete, token, payload);
 		}
 
-		#endregion Unused In RimGPT
-
 		/// <summary>Creates a chat completion request as in ChatGPT.</summary>
 		/// <param name="request">See <see cref="CreateChatCompletionRequest"/></param>
 		/// <returns>See <see cref="CreateChatCompletionResponse"/></returns>
 		public static async Task<CreateChatCompletionResponse> CreateChatCompletion(CreateChatCompletionRequest request, Action<string> errorCallback)
 		{
-			byte[] payload = CreatePayload(request);
+			var payload = CreatePayload(request);
 			var response = await DispatchRequest<CreateChatCompletionResponse>
 				(currentConfig.Endpoints.CreateChatCompletion, UnityWebRequest.kHttpVerbPOST, payload, errorCallback);
 			return response;
 		}
-
-		#region Unused In RimGPT
 
 		/// <summary> Creates a chat completion request as in ChatGPT. </summary>
 		/// <param name="request">See <see cref="CreateChatCompletionRequest"/></param>
@@ -237,7 +224,7 @@ namespace OpenAI
 		public static async Task CreateChatCompletionAsync(CreateChatCompletionRequest request, Action<List<CreateChatCompletionResponse>> onResponse, Action onComplete, CancellationTokenSource token)
 		{
 			request.Stream = true;
-			byte[] payload = CreatePayload(request);
+			var payload = CreatePayload(request);
 
 			// In the original Unity plugin, this was not awaited and the method was void instead of async Task
 			await DispatchRequest
@@ -249,7 +236,7 @@ namespace OpenAI
 		/// <returns>See <see cref="CreateEditResponse"/></returns>
 		public static async Task<CreateEditResponse> CreateEdit(CreateEditRequest request)
 		{
-			byte[] payload = CreatePayload(request);
+			var payload = CreatePayload(request);
 			return await DispatchRequest<CreateEditResponse>
 				(currentConfig.Endpoints.CreateEdit, UnityWebRequest.kHttpVerbPOST, payload);
 		}
@@ -259,7 +246,7 @@ namespace OpenAI
 		/// <returns>See <see cref="CreateImageResponse"/></returns>
 		public static async Task<CreateImageResponse> CreateImage(CreateImageRequest request)
 		{
-			byte[] payload = CreatePayload(request);
+			var payload = CreatePayload(request);
 			return await DispatchRequest<CreateImageResponse>
 				(currentConfig.Endpoints.CreateImage, UnityWebRequest.kHttpVerbPOST, payload);
 		}
@@ -302,7 +289,7 @@ namespace OpenAI
 		/// <returns>See <see cref="CreateEmbeddingsResponse"/></returns>
 		public static async Task<CreateEmbeddingsResponse> CreateEmbeddings(CreateEmbeddingsRequest request)
 		{
-			byte[] payload = CreatePayload(request);
+			var payload = CreatePayload(request);
 			return await DispatchRequest<CreateEmbeddingsResponse>
 				(currentConfig.Endpoints.CreateEmbeddings, UnityWebRequest.kHttpVerbPOST, payload);
 		}
@@ -414,7 +401,7 @@ namespace OpenAI
 		/// <returns>See <see cref="FineTune"/></returns>
 		public static async Task<FineTune> CreateFineTune(CreateFineTuneRequest request)
 		{
-			byte[] payload = CreatePayload(request);
+			var payload = CreatePayload(request);
 			return await DispatchRequest<FineTuneResponse>
 				(currentConfig.Endpoints.CreateFineTune, UnityWebRequest.kHttpVerbPOST, payload);
 		}
@@ -472,11 +459,9 @@ namespace OpenAI
 		/// <returns>See <see cref="CreateModerationResponse"/></returns>
 		public static async Task<CreateModerationResponse> CreateModeration(CreateModerationRequest request)
 		{
-			byte[] payload = CreatePayload(request);
+			var payload = CreatePayload(request);
 			return await DispatchRequest<CreateModerationResponse>
 				(currentConfig.Endpoints.CreateModeration, UnityWebRequest.kHttpVerbPOST, payload);
 		}
-
-		#endregion Unused In RimGPT
 	}
 }

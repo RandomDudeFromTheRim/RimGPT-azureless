@@ -1,4 +1,4 @@
-﻿using OpenAI;
+using OpenAI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -194,7 +194,7 @@ namespace RimGPT
 			Scribe_Values.Look(ref ModelSwitchRatio, "ModelSwitchRatio", defaultValue: 10);
 			// -------------------------------------------------------------------------
 
-			// Unused 
+			// Unused
 			//Scribe_Values.Look(ref openRouterKey, "openRouterKey");
 			//Scribe_Values.Look(ref ApiProviderPrimary, "ApiProviderPrimary", nameof(ApiProvider.OpenAI));
 			//Scribe_Values.Look(ref ApiProviderSecondary, "ApiProviderSecondary", nameof(ApiProvider.OpenAI));
@@ -286,10 +286,8 @@ namespace RimGPT
 			var width = normalColumnWidth;
 
 			var activeConfig = userApiConfigs?.FirstOrDefault(a => a.Active);
-			var activeModelId = (activeConfig?.ModelId.Length ?? 0) == 0 ? "None"
-				: activeConfig.ModelId.Split('/').Last() ?? activeConfig.ModelId;
-			var activeSecondaryId = (activeConfig?.SecondaryModelId.Length ?? 0) == 0 ? "None"
-				: activeConfig.SecondaryModelId.Split('/').Last() ?? activeConfig.SecondaryModelId;
+			var activeModelId = (activeConfig?.ModelId.Length ?? 0) == 0 ? "None" : activeConfig.ModelId.Split('/').Last() ?? activeConfig.ModelId;
+			var activeSecondaryId = (activeConfig?.SecondaryModelId.Length ?? 0) == 0 ? "None" : activeConfig.SecondaryModelId.Split('/').Last() ?? activeConfig.SecondaryModelId;
 
 			list.Label("00FF22", "Active Provider:", activeConfig?.Provider ?? "None",
 				activeConfig == null
@@ -317,94 +315,6 @@ namespace RimGPT
 					$"Chars Sent: {Tools.FormatNumber(config.CharactersSent)} | Received: {Tools.FormatNumber(config.CharactersReceived)}", $"Total characters sent and received while using {config.Provider}.", 0);
 			}
 			list.Gap(10f);
-
-			//list.Label("FFFF00", "OpenAI - ChatGPT", $"{charactersSentOpenAI} chars total");
-
-			// Removed all of the Provider and Model settings
-			//var prevKey = chatGPTKey;
-			//list.TextField(ref chatGPTKey, "API Key (paste only)", true, () => chatGPTKey = "");
-			//if (chatGPTKey != "" && chatGPTKey != prevKey)
-			//{
-			//    Tools.ReloadGPTModels();
-			//    AI.TestKey(
-			//         response => LongEventHandler.ExecuteWhenFinished(() =>
-			//         {
-			//             var dialog = new Dialog_MessageBox(response);
-			//             Find.WindowStack.Add(dialog);
-			//         })
-			//    );
-			//}
-
-			//var prevOpenRouterKey = openRouterKey;
-			//list.TextField(ref openRouterKey, "OpenRouter API Key (paste only)", true, () => openRouterKey = "");
-			//if (openRouterKey != "" && openRouterKey != prevOpenRouterKey)
-			//{
-			//    Tools.ReloadGPTModels();
-			//    // TODO: Need to test the OpenRouter API Key specifically
-			//    AI.TestKey(
-			//         response => LongEventHandler.ExecuteWhenFinished(() =>
-			//         {
-			//             var dialog = new Dialog_MessageBox(response);
-			//             Find.WindowStack.Add(dialog);
-			//         })
-			//    );
-			//}
-
-			//if (IsConfigured)
-			//{
-			//    // List of Api Providers
-			//    list.Label("API Provider");
-			//    rect = list.GetRect(UX.ButtonHeight);
-			//    TooltipHandler.TipRegion(rect, "Set the API provider that you would like to use.");
-			//    if (Widgets.ButtonText(rect, ApiProviderPrimary))
-			//        UX.ApiProviderMenu(l =>
-			//        {
-			//            ApiProviderPrimary = l;
-			//            var currentConfig = OpenAIApi.apiConfigs.GetConfig(l);
-			//            OpenAIApi.currentConfig = currentConfig;
-			//            ChatGPTModelPrimary = currentConfig.Models?.First().Id ?? "";
-			//            //if (Tools.DEBUG) Logger.Message($"currentConfig: {JsonConvert.SerializeObject(OpenAIApi.currentConfig, Configuration.JsonSerializerSettings)}"); // TEMP
-			//        });
-
-			//    list.Label("Primary ChatGPT Model");
-			//    rect = list.GetRect(UX.ButtonHeight);
-			//    TooltipHandler.TipRegion(rect, "Set the primary AI model used by default for generating insights. For example, choosing 'GPT-3.5' could be your standard model.");
-			//    if (Widgets.ButtonText(rect, ChatGPTModelPrimary))
-			//        UX.GPTVersionMenu(l => ChatGPTModelPrimary = l, ApiProviderPrimary); // Passing the chosen provider when a provider is selected
-
-			//    list.Gap(10f);
-			//    list.CheckboxLabeled("Alternate between two models", ref UseSecondaryModel);
-			//    if (UseSecondaryModel == true)
-			//    {
-			//        // TODO: Add functionality for secondary Provider.
-			//        list.Gap(10f);
-
-			//        // List of Api Providers
-			//        list.Label("Secondary API Provider");
-			//        rect = list.GetRect(UX.ButtonHeight);
-			//        TooltipHandler.TipRegion(rect, "Set an alternative API provider to switch to based on the Model Switch Ratio.");
-			//        if (Widgets.ButtonText(rect, ApiProviderSecondary))
-			//            UX.ApiProviderMenu(l =>
-			//            {
-			//                ApiProviderSecondary = l;
-			//                OpenAIApi.currentConfig = OpenAIApi.apiConfigs.GetConfig(l);
-			//            });
-
-			//        //list.Gap(10f);
-			//        list.Label("Secondary ChatGPT Model");
-			//        //list.Gap(10f);
-			//        rect = list.GetRect(UX.ButtonHeight);
-			//        TooltipHandler.TipRegion(rect, "Set an alternative AI model to switch to based on the Model Switch Ratio. For instance, if 'GPT-4' is chosen as the secondary option, there can be shifts between 'GPT-3.5' and 'GPT-4'.");
-			//        if (Widgets.ButtonText(rect, ChatGPTModelSecondary))
-			//            UX.GPTVersionMenu(l => ChatGPTModelSecondary = l, ApiProviderSecondary);
-			//        list.Gap(10f);
-			//        list.Slider(ref ModelSwitchRatio, 1, 20, f => $"Ratio: {f}:1", 1, "Adjust the frequency at which the system switches between the primary and secondary AI models. The 'Model Switch Ratio' value determines after how many calls to the primary model the system will switch to the secondary model for one time. A lower ratio means more frequent switching to the secondary model.\n\nExample: With a ratio of '1', there is no distinction between primary and secondary—each call alternates between the two. With a ratio of '10', the system uses the primary model nine times, and then the secondary model once before repeating the cycle.");
-			//    }
-			//}
-
-
-
-			//list.Gap(16f);
 
 			list.Label("FFFF00", "Azure - Speech Services", $"Chars Sent: {Tools.FormatNumber(charactersSentAzure)}", "Total characters sent while using Azure Speech Services.");
 			var prevRegion = azureSpeechRegion;
@@ -567,12 +477,12 @@ namespace RimGPT
 
 				list.Gap(16f);
 
-				list.Label((TaggedString)"Sending game information", -1, "RimGPT limits when and what it sends to ChatGPT. It collects phrases from the game and other personas until after some time it sends some of the phrases batched together to create a comment.");
+				_ = list.Label((TaggedString)"Sending game information", -1, "RimGPT limits when and what it sends to ChatGPT. It collects phrases from the game and other personas until after some time it sends some of the phrases batched together to create a comment.");
 				list.Slider(ref selected.phrasesLimit, 1, 100, n => $"Max phrases: {n}", 1, "How many unsent phrases should RimGPT keep at a maximum?");
 				selected.phraseBatchSize = Mathf.Min(selected.phraseBatchSize, selected.phrasesLimit);
 				list.Slider(ref selected.phraseBatchSize, 1, selected.phrasesLimit, n => $"Batch size: {n} phrases", 1, "How many phrases should RimGPT send batched together in its data to ChatGPT?");
 				list.Gap(16f);
-				list.Label((TaggedString)"Delay between comments", -1, "To optimize, RimGPT collects text and phrases and only sends it in intervals to ChatGPT to create comments.");
+				_ = list.Label((TaggedString)"Delay between comments", -1, "To optimize, RimGPT collects text and phrases and only sends it in intervals to ChatGPT to create comments.");
 				list.Slider(ref selected.phraseDelayMin, 5f, 1200f, f => $"Min: {Mathf.FloorToInt(f + 0.01f)} sec", 1f, 2, "RimGPT creates comments in intervals. What is the shortest time between comments?");
 				if (selected.phraseDelayMin > selected.phraseDelayMax)
 					selected.phraseDelayMin = selected.phraseDelayMax;
@@ -583,15 +493,14 @@ namespace RimGPT
 				if (oldMax > selected.phraseDelayMax)
 					selected.nextPhraseTime = DateTime.Now.AddSeconds(selected.phraseDelayMin);
 				list.Gap(16f);
-				list.Label("Comments");
+				_ = list.Label("Comments");
 				list.Slider(ref selected.phraseMaxWordCount, 1, 160, n => $"Max words: {n}", 1, "RimGPT instructs ChatGPT to generate comments that are no longer than this amount of words.");
 				list.Gap(16f);
-				list.Label("History");
+				_ = list.Label("History");
 				list.Slider(ref selected.historyMaxWordCount, 200, 1200, n => $"Max words: {n}", 1, "RimGPT lets ChatGPT create a history summary that is then send together with new requests to form some kind of memory for ChatGPT. What is the maximum size of the history?");
 				list.Gap(16f);
-				TooltipHandler.TipRegion(new Rect(list.curX, list.curY, 200f, 24f),
-						"Less suitable for personas that speak frequently, and more suitable for a role whom chimes in on more rare occasions. The personality will still need to be customized to fully take advantage of this feature.");
-				bool chroniclerToggle = selected.isChronicler;
+				TooltipHandler.TipRegion(new Rect(list.curX, list.curY, 200f, 24f), "Less suitable for personas that speak frequently, and more suitable for a role whom chimes in on more rare occasions. The personality will still need to be customized to fully take advantage of this feature.");
+				var chroniclerToggle = selected.isChronicler;
 				list.CheckboxLabeled("Is Chronicler", ref chroniclerToggle, "Enable if this persona should be treated as a Chronicler.  Otherwise they'll receive just the most recent phrases no other persona has received.");
 				selected.isChronicler = chroniclerToggle; // Update the persona's isChronicler flag
 				list.Gap(16f);

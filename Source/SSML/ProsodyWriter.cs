@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using System.Xml;
 
 namespace Kevsoft.Ssml
@@ -21,8 +21,7 @@ namespace Kevsoft.Ssml
 				if (value > 0)
 					str = "+" + str;
 
-				await writer.WriteAttributeStringAsync(null, name, null, str)
-					 .ConfigureAwait(false);
+				await writer.WriteAttributeStringAsync(null, name, null, str).ConfigureAwait(false);
 			}
 		}
 
@@ -32,19 +31,15 @@ namespace Kevsoft.Ssml
 
 			if (needsWrapping)
 			{
-				await writer.WriteStartElementAsync(null, "prosody", null)
-					 .ConfigureAwait(false);
-
+				await writer.WriteStartElementAsync(null, "prosody", null).ConfigureAwait(false);
 				await AddAttribute(writer, "rate", _rate);
 				await AddAttribute(writer, "pitch", _pitch);
 			}
 
-			await _innerWriter.WriteAsync(writer)
-				 .ConfigureAwait(false);
+			await _innerWriter.WriteAsync(writer).ConfigureAwait(false);
 
 			if (needsWrapping)
-				await writer.WriteEndElementAsync()
-					 .ConfigureAwait(false);
+				await writer.WriteEndElementAsync().ConfigureAwait(false);
 		}
 	}
 }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using static OpenAI.ApiConfig;
@@ -108,12 +108,10 @@ namespace OpenAI
 			public string TogetherAI => "https://api.together.xyz/v1";
 
 			/// <summary> Ollama Default Base URL: <see href="http://localhost:11434/api"/></summary>
-			public string Ollama => Port.HasValue ?
-				$"http://localhost:{Port}/api" : "http://localhost:11434/api";
+			public string Ollama => Port.HasValue ? $"http://localhost:{Port}/api" : "http://localhost:11434/api";
 
 			/// <summary> Ollama Default Base URL: <see href="http://localhost:8080/v1"/></summary>
-			public string LocalAI => Port.HasValue ?
-				$"http://localhost:{Port}/v1" : "http://localhost:8080/v1";
+			public string LocalAI => Port.HasValue ? $"http://localhost:{Port}/v1" : "http://localhost:8080/v1";
 		}
 	}
 
@@ -121,22 +119,16 @@ namespace OpenAI
 	public static class ApiTools
 	{
 		/// <summary> Gets an array of Api Providers. </summary>
-		public static ApiProvider[] GetApiProviders()
-		{
-			return Enum.GetValues(typeof(ApiProvider)).Cast<ApiProvider>().ToArray();
-		}
+		public static ApiProvider[] GetApiProviders() => Enum.GetValues(typeof(ApiProvider)).Cast<ApiProvider>().ToArray();
 
 		/// <summary> Returns string names of all API providers. </summary>
-		public static string[] GetApiProviderNames()
-		{
-			return Enum.GetNames(typeof(ApiProvider));
-		}
+		public static string[] GetApiProviderNames() => Enum.GetNames(typeof(ApiProvider));
 
 		/// <summary> Returns a list of ApiConfigs using the Provider enum </summary>
 		public static List<ApiConfig> GetApiConfigs()
 		{
 			List<ApiConfig> apiConfigs = [];
-			foreach (ApiProvider provider in GetApiProviders())
+			foreach (var provider in GetApiProviders())
 			{
 				if (provider == ApiProvider.Default) continue;
 
@@ -155,8 +147,8 @@ namespace OpenAI
 		/// <param name="port"> Only necessary for Local APIs, will use default if null. </param>
 		public static void Update(this ApiConfig apiConfig, string apiKey = null, string organization = null, string baseUrl = "", int? port = null)
 		{
-			bool portChanged = apiConfig.Port != port;
-			bool baseUrlChanged = baseUrl.Length > 0 && apiConfig.BaseUrl != baseUrl;
+			var portChanged = apiConfig.Port != port;
+			var baseUrlChanged = baseUrl.Length > 0 && apiConfig.BaseUrl != baseUrl;
 			apiConfig.Key = apiKey;
 			apiConfig.Organization = organization;
 			apiConfig.Port = port;
@@ -173,9 +165,9 @@ namespace OpenAI
 		{
 			if (userApiConfig == null || userApiConfig.Provider.Length == 0) return;
 
-			bool baseUrlChanged = userApiConfig.BaseUrl.Length > 0 && apiConfig.BaseUrl != userApiConfig.BaseUrl;
-			string baseUrl = baseUrlChanged ? userApiConfig.BaseUrl : apiConfig.BaseUrl;
-			bool configured = !(apiConfig.Provider.NeedsApiKey() && userApiConfig.Key.Length == 0) && baseUrl.Length > 0;
+			var baseUrlChanged = userApiConfig.BaseUrl.Length > 0 && apiConfig.BaseUrl != userApiConfig.BaseUrl;
+			var baseUrl = baseUrlChanged ? userApiConfig.BaseUrl : apiConfig.BaseUrl;
+			var configured = !(apiConfig.Provider.NeedsApiKey() && userApiConfig.Key.Length == 0) && baseUrl.Length > 0;
 
 			apiConfig.Key = userApiConfig.Key;
 			apiConfig.Organization = userApiConfig.Organization;
@@ -191,16 +183,10 @@ namespace OpenAI
 		/// <param name="apiKey"> Only necessary for online APIs. </param>
 		/// <param name="organization">The organization associated with the API key, never necessary.</param>
 		/// <param name="port"> Only necessary for Local APIs, will use default if null. </param>
-		public static void UpdateConfig(this List<ApiConfig> apiConfigs, ApiProvider apiProvider, string apiKey = null, string organization = null, string baseUrl = "", int? port = null)
-		{
-			apiConfigs.Find(c => c.Provider == apiProvider).Update(apiKey, organization, baseUrl, port);
-		}
+		public static void UpdateConfig(this List<ApiConfig> apiConfigs, ApiProvider apiProvider, string apiKey = null, string organization = null, string baseUrl = "", int? port = null) => apiConfigs.Find(c => c.Provider == apiProvider).Update(apiKey, organization, baseUrl, port);
 
 		/// <summary> Gets an ApiConfig from a list by using the Provider enum. </summary>
-		public static ApiConfig GetConfig(this List<ApiConfig> apiConfigs, ApiProvider apiProvider)
-		{
-			return apiConfigs.Find(c => c.Provider == apiProvider);
-		}
+		public static ApiConfig GetConfig(this List<ApiConfig> apiConfigs, ApiProvider apiProvider) => apiConfigs.Find(c => c.Provider == apiProvider);
 
 		/// <summary> Gets an ApiConfig from a list by using the Provider as a string. </summary>
 		public static ApiConfig GetConfig(this List<ApiConfig> apiConfigs, string apiProviderString)
@@ -257,7 +243,7 @@ namespace OpenAI
 	{
 		private string Combine(string endpoint)
 		{
-			string baseUrl = apiConfig.BaseUrl;
+			var baseUrl = apiConfig.BaseUrl;
 			return $"{baseUrl}{endpoint}";
 		}
 

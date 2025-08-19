@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading;
 
 namespace RimGPT
@@ -15,10 +15,11 @@ namespace RimGPT
 			{
 				_debounceTimer?.Dispose();
 				_debounceTimer = new Timer(
-					 _ => action(),
-					 null,
-					 _debounceInterval,
-					 Timeout.Infinite);
+					_ => action(),
+					null,
+					_debounceInterval,
+					Timeout.Infinite
+				);
 			}
 		}
 	}

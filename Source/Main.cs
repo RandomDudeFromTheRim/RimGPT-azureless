@@ -1,4 +1,4 @@
-﻿using Brrainz;
+using Brrainz;
 using HarmonyLib;
 using System;
 using System.Collections;
@@ -16,10 +16,7 @@ namespace RimGPT
 	{
 		static readonly ConcurrentQueue<Action> actions = new();
 
-		static Main()
-		{
-			Postfix();
-		}
+		static Main() => Postfix();
 
 		public static void Postfix()
 		{

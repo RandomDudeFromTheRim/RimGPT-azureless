@@ -8,10 +8,19 @@ namespace RimGPT
 	// - action is executed at each scheduled interval
 	// - startImmediately to indicate the action will be executed as soon as the task starts
 	//
-	public struct UpdateTask(Func<int> updateIntervalFunc, Action<Map> action, bool startImmediately)
-	{
-		public int updateTickCounter = startImmediately ? 0 : Rand.Range(updateIntervalFunc() / 2, updateIntervalFunc());
-		public Func<int> updateIntervalFunc = updateIntervalFunc;
-		public Action<Map> action = action;
-	}
+        public struct UpdateTask
+        {
+                public int updateTickCounter;
+                public Func<int> updateIntervalFunc;
+                public Action<Map> action;
+
+                public UpdateTask(Func<int> updateIntervalFunc, Action<Map> action, bool startImmediately)
+                {
+                        this.updateIntervalFunc = updateIntervalFunc;
+                        this.action = action;
+
+                        var interval = Math.Max(1, updateIntervalFunc());
+                        updateTickCounter = startImmediately ? 0 : Rand.Range(interval / 2, interval);
+                }
+        }
 }

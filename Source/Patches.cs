@@ -625,22 +625,32 @@ namespace RimGPT
 			if (map == null)
 				return;
 
-			foreach (var taskEntry in updateTasks.ToList())
-			{
-				var key = taskEntry.Key;
-				var task = taskEntry.Value;
+                        lock (updateTasks)
+                        {
+                                foreach (var key in updateTasks.Keys.ToList())
+                                {
+                                        var task = updateTasks[key];
 
-				task.updateTickCounter--;
-				if (task.updateTickCounter < 0)
-				{
-					task.updateTickCounter = task.updateIntervalFunc();
-					task.action(map);
-				}
+                                        task.updateTickCounter--;
+                                        if (task.updateTickCounter < 0)
+                                        {
+                                                var interval = Math.Max(1, task.updateIntervalFunc());
+                                                task.updateTickCounter = interval;
+                                                try
+                                                {
+                                                        task.action(map);
+                                                }
+                                                catch (Exception ex)
+                                                {
+                                                        Logger.Error($"Update task '{key}' failed: {ex}");
+                                                }
+                                        }
 
-				updateTasks[key] = task;
-			}
-		}
-	}
+                                        updateTasks[key] = task;
+                                }
+                        }
+                }
+        }
 
 
 

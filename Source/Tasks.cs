@@ -91,40 +91,44 @@ namespace RimGPT
 	{
 		public static Dictionary<(Pawn, Pawn), int> lastOpinions = [];
 
-		public static void Task(Map map)
-		{
-			if (RimGPTMod.Settings.reportColonistOpinions == false)
-				return;
+                public static void Task(Map map)
+                {
+                        if (RimGPTMod.Settings.reportColonistOpinions == false)
+                                return;
 
-			var opinionMessages = new List<string>();
-			var freeColonistsCopy = map.mapPawns.FreeColonists.ToList();
+                        var opinionMessages = new List<string>();
+                        var colonists = map.mapPawns.FreeColonists.ToList();
+                        var colonistSet = colonists.ToHashSet();
 
-			foreach (var colonist in freeColonistsCopy)
-				foreach (var otherColonist in freeColonistsCopy)
-				{
-					if (colonist == otherColonist)
-						continue;
+                        foreach (var key in lastOpinions.Keys.Where(k => !colonistSet.Contains(k.Item1) || !colonistSet.Contains(k.Item2)).ToList())
+                                lastOpinions.Remove(key);
 
-					var currentOpinion = colonist.relations.OpinionOf(otherColonist);
+                        foreach (var colonist in colonists)
+                                foreach (var otherColonist in colonists)
+                                {
+                                        if (colonist == otherColonist)
+                                                continue;
 
-					if (lastOpinions.TryGetValue((colonist, otherColonist), out var previousOpinion))
-					{
-						var trend = currentOpinion == previousOpinion ? "stayed the same" : currentOpinion > previousOpinion ? "improved" : "worsened";
-						opinionMessages.Add($"{colonist.Name} current opinion of {otherColonist.Name}: {currentOpinion} (has {trend} since yesterday)");
-					}
-					else
-						opinionMessages.Add($"{colonist.Name} current opinion of {otherColonist.Name}: {currentOpinion}");
+                                        var currentOpinion = colonist.relations.OpinionOf(otherColonist);
 
-					lastOpinions[(colonist, otherColonist)] = currentOpinion;
-				}
+                                        if (lastOpinions.TryGetValue((colonist, otherColonist), out var previousOpinion))
+                                        {
+                                                var trend = currentOpinion == previousOpinion ? "stayed the same" : currentOpinion > previousOpinion ? "improved" : "worsened";
+                                                opinionMessages.Add($"{colonist.Name} current opinion of {otherColonist.Name}: {currentOpinion} (has {trend} since yesterday)");
+                                        }
+                                        else
+                                                opinionMessages.Add($"{colonist.Name} current opinion of {otherColonist.Name}: {currentOpinion}");
 
-			if (opinionMessages.Any())
-			{
-				var consolidatedMessage = opinionMessages.Join(delimiter: "\n");
-				Personas.Add(consolidatedMessage, 2);
-			}
-		}
-	}
+                                        lastOpinions[(colonist, otherColonist)] = currentOpinion;
+                                }
+
+                        if (opinionMessages.Any())
+                        {
+                                var consolidatedMessage = opinionMessages.Join(delimiter: "\n");
+                                Personas.Add(consolidatedMessage, 2);
+                        }
+                }
+        }
 
 	// reports on colony Energy status, is skipped if the colony does not have any energy buildings or needs
 	//

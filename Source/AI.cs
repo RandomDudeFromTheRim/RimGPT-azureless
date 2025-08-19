@@ -257,13 +257,27 @@ namespace RimGPT
 			if (Tools.DEBUG)
 				Logger.Warning($"INPUT: {JsonConvert.SerializeObject(request, settings)}");
 
-			var completionResponse = await OpenAIApi.CreateChatCompletion(request, error => Logger.Error(error));
-			activeConfig.CharactersSent += systemPrompt.Length + input.Length;
+                        var completionResponse = await OpenAIApi.CreateChatCompletion(request, error => Logger.Error(error));
+                        if (activeConfig != null)
+                                activeConfig.CharactersSent += systemPrompt.Length + input.Length;
 
-			if (completionResponse.Choices?.Count > 0)
-			{
-				var response = (completionResponse.Choices[0].Message.Content ?? "");
-				activeConfig.CharactersReceived += response.Length;
+                        if (completionResponse.Choices == null)
+                        {
+                                if (retry < maxRetries)
+                                {
+                                        Logger.Error("(retrying) ChatGPT request returned no choices");
+                                        return await Evaluate(persona, observations, ++retry, "null response");
+                                }
+
+                                Logger.Error("(aborted) ChatGPT request returned no choices");
+                                return null;
+                        }
+
+                        if (completionResponse.Choices.Count > 0)
+                        {
+                                var response = completionResponse.Choices[0].Message.Content ?? "";
+                                if (activeConfig != null)
+                                        activeConfig.CharactersReceived += response.Length;
 				response = response.Trim();
 				var firstIdx = response.IndexOf("{");
 				if (firstIdx >= 0)
@@ -349,10 +363,10 @@ namespace RimGPT
 			};
 
 
-			var completionResponse = await OpenAIApi.CreateChatCompletion(request, error => Logger.Error(error));
-			var response = (completionResponse.Choices[0].Message.Content ?? "");
-			Logger.Message("Condensed History: " + response.ToString());
-			return response.ToString(); // The condensed history summary
+                        var completionResponse = await OpenAIApi.CreateChatCompletion(request, error => Logger.Error(error));
+                        var response = completionResponse.Choices?.FirstOrDefault().Message.Content ?? "";
+                        Logger.Message("Condensed History: " + response);
+                        return response; // The condensed history summary
 		}
 		public void ReplaceHistory(string reason)
 		{
@@ -383,30 +397,32 @@ namespace RimGPT
 				modelId = GetCurrentChatGPTModel();
 			}
 
-			string requestError = null;
-			var completionResponse = await OpenAIApi.CreateChatCompletion(new CreateChatCompletionRequest()
-			{
-				Model = modelId,
-				Messages =
-				[
-					new ChatMessage() { Role = "system", Content = "You are a creative poet answering in 12 words or less." },
-					new ChatMessage() { Role = "user", Content = input }
-				]
-			}, e => requestError = e);
-			currentUserConfig.CharactersSent += input.Length;
+                        string requestError = null;
+                        var completionResponse = await OpenAIApi.CreateChatCompletion(new CreateChatCompletionRequest()
+                        {
+                                Model = modelId,
+                                Messages =
+                                [
+                                        new ChatMessage() { Role = "system", Content = "You are a creative poet answering in 12 words or less." },
+                                        new ChatMessage() { Role = "user", Content = input }
+                                ]
+                        }, e => requestError = e);
+                        if (currentUserConfig != null)
+                                currentUserConfig.CharactersSent += input.Length;
 
 			if (userApiConfig != null)
 				OpenAIApi.currentConfig = currentConfig;
 
-			if (completionResponse.Choices?.Count > 0)
-			{
-				var response = (completionResponse.Choices[0].Message.Content ?? "");
-				currentUserConfig.CharactersReceived += response.Length;
-				return (response, null);
-			}
+                        if (completionResponse.Choices?.Count > 0)
+                        {
+                                var response = completionResponse.Choices[0].Message.Content ?? "";
+                                if (currentUserConfig != null)
+                                        currentUserConfig.CharactersReceived += response.Length;
+                                return (response, null);
+                        }
 
-			return (null, requestError);
-		}
+                        return (null, requestError ?? "No response");
+                }
 
 		public static void TestKey(Action<string> callback, UserApiConfig userApiConfig, string modelId = "")
 		{

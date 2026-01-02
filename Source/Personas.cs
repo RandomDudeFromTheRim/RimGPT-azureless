@@ -172,7 +172,7 @@ namespace RimGPT
 
 			lock (speechQueue)
 			{
-				if (IsAudioQueueFull == false && RimGPTMod.Settings.azureSpeechKey != "" && RimGPTMod.Settings.azureSpeechRegion != "")
+				if (IsAudioQueueFull == false && RimGPTMod.Settings.IsConfigured)
 				{
 					var filteredPhrases = phrases.Where(obs => obs.persona?.name != persona.name).ToArray();
 					var job = new SpeechJob(persona, filteredPhrases, errorCallback, doneCallback);

@@ -201,7 +201,7 @@ namespace RimGPT
 
 		public void Periodic()
 		{
-			if (RimGPTMod.Settings.azureSpeechRegion.NullOrEmpty())
+			if (!RimGPTMod.Settings.IsConfigured)
 				return;
 
 			var now = DateTime.Now;

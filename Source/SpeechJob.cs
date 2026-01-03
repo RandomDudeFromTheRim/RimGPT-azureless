@@ -31,7 +31,8 @@ namespace RimGPT
 					completed = true;
 					return;
 				}
-				audioClip = await TTS.AudioClipFromAzure(persona, $"{TTS.APIURL}/v1", spokenText, errorCallback);
+				if (RimGPTMod.Settings.azureSpeechKey != "" && RimGPTMod.Settings.azureSpeechRegion != "")
+					audioClip = await TTS.AudioClipFromAzure(persona, $"{TTS.APIURL}/v1", spokenText, errorCallback);
 				doneCallback();
 				completed = true;
 			});

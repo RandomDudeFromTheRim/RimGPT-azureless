@@ -15,6 +15,7 @@ namespace RimGPT
 		private static readonly OrderedHashSet<Phrase> allPhrases = [];
 		public static Persona lastSpeakingPersona = null;
 		private static readonly object resetLock = new();
+		private static readonly object speechQueueLock = new();
 		public static bool isResetting = false;
 
 		static Personas()
@@ -66,6 +67,8 @@ namespace RimGPT
 				if (!candidates.Any())
 				{
 					// If there are no future phrase times, simply use the round-robin approach.
+					if (RimGPTMod.Settings.personas.Count == 0)
+						return;
 					var currentIndex = lastSpeaker != null ? RimGPTMod.Settings.personas.IndexOf(lastSpeaker) : 0;
 					if (currentIndex == -1 || currentIndex >= RimGPTMod.Settings.personas.Count - 1)
 						currentIndex = 0;
@@ -92,12 +95,12 @@ namespace RimGPT
 				foreach (var persona in RimGPTMod.Settings.personas)
 				{
 					if (persona.isChronicler)
-						break;
+						continue;
 
 					foreach (var phrase in highPriorityPhrases)
 					{
 						if (!persona.phrases.Contains(phrase))
-							nextPersona.AddPhrase(phrase);
+							persona.AddPhrase(phrase);
 					}
 				}
 
@@ -110,7 +113,7 @@ namespace RimGPT
 				{
 					var lastSpokenPhrase = new Phrase
 					{
-						text = $"{lastSpeaker.name} said: {lastSpeaker.lastSpokenText}]",
+						text = $"{lastSpeaker.name} said: {lastSpeaker.lastSpokenText}",
 						persona = lastSpeaker,
 						priority = 1
 					};
@@ -121,7 +124,7 @@ namespace RimGPT
 			}
 		}
 
-		public static bool IsAnyCompletedJobWaiting() => speechQueue.Any(job => job.readyForNextJob && !job.isPlaying);
+		public static bool IsAnyCompletedJobWaiting() => speechQueue.Any(job => job.completed && !job.isPlaying);
 
 		public static void Add(string text, int priority, Persona speaker = null)
 		{
@@ -138,7 +141,7 @@ namespace RimGPT
 
 		public static void RemoveSpeechDelayForPersona(Persona persona)
 		{
-			lock (speechQueue)
+			lock (speechQueueLock)
 			{
 				foreach (var job in speechQueue)
 					if (job.persona == persona && job.doneCallback != null)
@@ -156,21 +159,25 @@ namespace RimGPT
 			{
 				isResetting = true;
 				RecordKeeper.Reset();
-				speechQueue.Clear();
-				allPhrases.Clear();
+				lock (speechQueueLock)
+				{
+					speechQueue.Clear();
+				}
+				lock (allPhrases)
+				{
+					allPhrases.Clear();
+				}
 
 				foreach (var persona in RimGPTMod.Settings.personas)
 					persona.Reset(reason);
 
 				isResetting = false;
 			}
-
 		}
 
 		public static void CreateSpeechJob(Persona persona, Phrase[] phrases, Action<string> errorCallback, Action doneCallback)
 		{
-
-			lock (speechQueue)
+			lock (speechQueueLock)
 			{
 				if (IsAudioQueueFull == false && RimGPTMod.Settings.IsConfigured)
 				{

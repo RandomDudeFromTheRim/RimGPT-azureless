@@ -8,6 +8,9 @@ using UnityEngine;
 using UnityEngine.Networking;
 using Verse;
 using Verse.Sound;
+using System.IO;
+using System.Diagnostics;
+using System.Collections.Generic;
 
 namespace RimGPT
 {
@@ -45,6 +48,26 @@ namespace RimGPT
 		}
 	}
 
+	public class CoquiVoice
+	{
+		public string VoiceId;
+		public string Name;
+		public string Language;
+		public string Gender;
+		public string ModelUrl;
+		
+		public static CoquiVoice[] AvailableVoices = new[]
+		{
+			new CoquiVoice { VoiceId = "en_UK", Name = "English (UK)", Language = "en", Gender = "Female" },
+			new CoquiVoice { VoiceId = "en_US", Name = "English (US)", Language = "en", Gender = "Female" },
+			new CoquiVoice { VoiceId = "ru_RU", Name = "Russian", Language = "ru", Gender = "Female" },
+			new CoquiVoice { VoiceId = "fr_FR", Name = "French", Language = "fr", Gender = "Female" },
+			new CoquiVoice { VoiceId = "de_DE", Name = "German", Language = "de", Gender = "Female" }
+		};
+		
+		public static CoquiVoice From(string voiceId) => AvailableVoices.FirstOrDefault(v => v.VoiceId == voiceId);
+	}
+
 	public class VoiceStyle
 	{
 		private VoiceStyle(string name, string value, string tooltip) { Name = name; Value = value; Tooltip = tooltip; }
@@ -57,39 +80,22 @@ namespace RimGPT
 		[
 			new VoiceStyle("Default", "default", null),
 			new VoiceStyle("Advertisement Upbeat", "advertisement_upbeat", "Expresses an excited and high-energy tone for promoting a product or service"),
-			new VoiceStyle("Affectionate", "affectionate", "Expresses a warm and affectionate tone, with higher pitch and vocal energy. The speaker is in a state of attracting the attention of the listener. The personality of the speaker is often endearing in nature"),
+			new VoiceStyle("Affectionate", "affectionate", "Expresses a warm and affectionate tone, with higher pitch and vocal energy"),
 			new VoiceStyle("Angry", "angry", "Expresses an angry and annoyed tone"),
 			new VoiceStyle("Assistant", "assistant", "Expresses a warm and relaxed tone for digital assistants"),
-			new VoiceStyle("Calm", "calm", "Expresses a cool, collected, and composed attitude when speaking. Tone, pitch, and prosody are more uniform compared to other types of speech"),
+			new VoiceStyle("Calm", "calm", "Expresses a cool, collected, and composed attitude when speaking"),
 			new VoiceStyle("Chat", "chat", "Expresses a casual and relaxed tone"),
 			new VoiceStyle("Cheerful", "cheerful", "Expresses a positive and happy tone"),
 			new VoiceStyle("Customer Service", "customerservice", "Expresses a friendly and helpful tone for customer support"),
 			new VoiceStyle("Depressed", "depressed", "Expresses a melancholic and despondent tone with lower pitch and energy"),
-			new VoiceStyle("Disgruntled", "disgruntled", "Expresses a disdainful and complaining tone. Speech of this emotion displays displeasure and contempt"),
-			new VoiceStyle("Documentary Narration", "documentary-narration", "Narrates documentaries in a relaxed, interested, and informative style suitable for dubbing documentaries, expert commentary, and similar content"),
-			new VoiceStyle("Embarrassed", "embarrassed", "Expresses an uncertain and hesitant tone when the speaker is feeling uncomfortable"),
-			new VoiceStyle("Empathetic", "empathetic", "Expresses a sense of caring and understanding"),
-			new VoiceStyle("Envious", "envious", "Expresses a tone of admiration when you desire something that someone else has"),
-			new VoiceStyle("Excited", "excited", "Expresses an upbeat and hopeful tone. It sounds like something great is happening and the speaker is really happy about that"),
-			new VoiceStyle("Fearful", "fearful", "Expresses a scared and nervous tone, with higher pitch, higher vocal energy, and faster rate. The speaker is in a state of tension and unease"),
-			new VoiceStyle("Friendly", "friendly", "Expresses a pleasant, inviting, and warm tone. It sounds sincere and caring"),
-			new VoiceStyle("Gentle", "gentle", "Expresses a mild, polite, and pleasant tone, with lower pitch and vocal energy"),
-			new VoiceStyle("Hopeful", "hopeful", "Expresses a warm and yearning tone. It sounds like something good will happen to the speaker"),
-			new VoiceStyle("Lyrical", "lyrical", "Expresses emotions in a melodic and sentimental way"),
-			new VoiceStyle("Narration Professional", "narration-professional", "Expresses a professional, objective tone for content reading"),
-			new VoiceStyle("Narration Relaxed", "narration-relaxed", "Express a soothing and melodious tone for content reading"),
-			new VoiceStyle("Newscast", "newscast", "Expresses a formal and professional tone for narrating news"),
-			new VoiceStyle("Newscast Casual", "newscast-casual", "Expresses a versatile and casual tone for general news delivery"),
-			new VoiceStyle("Newscast Formal", "newscast-formal", "Expresses a formal, confident, and authoritative tone for news delivery"),
-			new VoiceStyle("Poetry Reading", "poetry-reading", "Expresses an emotional and rhythmic tone while reading a poem"),
+			new VoiceStyle("Disgruntled", "disgruntled", "Expresses a disdainful and complaining tone"),
+			new VoiceStyle("Excited", "excited", "Expresses an upbeat and hopeful tone"),
+			new VoiceStyle("Fearful", "fearful", "Expresses a scared and nervous tone"),
+			new VoiceStyle("Friendly", "friendly", "Expresses a pleasant, inviting, and warm tone"),
+			new VoiceStyle("Gentle", "gentle", "Expresses a mild, polite, and pleasant tone"),
+			new VoiceStyle("Serious", "serious", "Expresses a strict and commanding tone"),
 			new VoiceStyle("Sad", "sad", "Expresses a sorrowful tone"),
-			new VoiceStyle("Serious", "serious", "Expresses a strict and commanding tone. Speaker often sounds stiffer and much less relaxed with firm cadence"),
-			new VoiceStyle("Shouting", "shouting", "Speaks like from a far distant or outside and to make self be clearly heard"),
-			new VoiceStyle("Sports Commentary", "sports_commentary", "Expresses a relaxed and interesting tone for broadcasting a sports event"),
-			new VoiceStyle("Sports Commentary Excited", "sports_commentary_excited", "Expresses an intensive and energetic tone for broadcasting exciting moments in a sports event"),
-			new VoiceStyle("Whispering", "whispering", "Speaks very softly and make a quiet and gentle sound"),
-			new VoiceStyle("Terrified", "terrified", "Expresses a very scared tone, with faster pace and a shakier voice. It sounds like the speaker is in an unsteady and frantic status"),
-			new VoiceStyle("Unfriendly", "unfriendly", "Expresses a cold and indifferent tone")
+			new VoiceStyle("Whispering", "whispering", "Speaks very softly and make a quiet and gentle sound")
 		];
 
 		public static VoiceStyle From(string shortName) => Values.FirstOrDefault(s => s.Value == shortName);
@@ -98,11 +104,86 @@ namespace RimGPT
 	public class TTS
 	{
 		public static string APIURL => $"https://{RimGPTMod.Settings.azureSpeechRegion}.tts.speech.microsoft.com/cognitiveservices";
-
+		
+		// Coqui TTS configuration
+		private static string CoquiServerUrl => RimGPTMod.Settings.coquiServerUrl ?? "http://localhost:5002";
+		private static Process coquiServerProcess = null;
+		
 		public static Voice[] voices = [];
-
+		
 		private static AudioSource audioSource = null;
 		private static readonly object audioSourceLock = new();
+
+		public static void StartCoquiServer()
+		{
+			try
+			{
+				if (coquiServerProcess != null && !coquiServerProcess.HasExited)
+					return;
+					
+				string pythonPath = FindPython();
+				if (pythonPath == null)
+				{
+					Logger.Error("Python not found. Coqui TTS requires Python.");
+					return;
+				}
+				
+				var startInfo = new ProcessStartInfo
+				{
+					FileName = pythonPath,
+					Arguments = "-m TTS.server.server --port 5002 --model_name tts_models/en/ljspeech/tacotron2-DDC",
+					UseShellExecute = false,
+					CreateNoWindow = true,
+					RedirectStandardOutput = true,
+					RedirectStandardError = true
+				};
+				
+				coquiServerProcess = Process.Start(startInfo);
+				Logger.Message("Coqui TTS server started on port 5002");
+				
+				// Wait a bit for server to start
+				System.Threading.Thread.Sleep(5000);
+			}
+			catch (Exception e)
+			{
+				Logger.Error($"Failed to start Coqui server: {e.Message}");
+			}
+		}
+		
+		private static string FindPython()
+		{
+			var possiblePaths = new[]
+			{
+				"python",
+				"python3",
+				"py",
+				"/usr/bin/python3",
+				"/usr/local/bin/python3",
+				"C:\\Python39\\python.exe"
+			};
+			
+			foreach (var path in possiblePaths)
+			{
+				try
+				{
+					var process = Process.Start(new ProcessStartInfo
+					{
+						FileName = path,
+						Arguments = "--version",
+						UseShellExecute = false,
+						CreateNoWindow = true,
+						RedirectStandardOutput = true
+					});
+					
+					process.WaitForExit(1000);
+					if (process.ExitCode == 0)
+						return path;
+				}
+				catch { }
+			}
+			
+			return null;
+		}
 
 		public static AudioSource GetAudioSource()
 		{
@@ -167,8 +248,83 @@ namespace RimGPT
 			return default;
 		}
 
+		public static async Task<AudioClip> AudioClipFromCoqui(Persona persona, string text, Action<string> errorCallback)
+		{
+			try
+			{
+				// Coqui TTS API call
+				var coquiUrl = $"{CoquiServerUrl}/api/tts";
+				var jsonPayload = JsonConvert.SerializeObject(new
+				{
+					text = text,
+					voice = persona.coquiVoice ?? "en_US",
+					speed = persona.speechRate == "default" ? 1.0f : GetSpeedFromRate(persona.speechRate),
+					pitch = persona.speechPitch == "default" ? 1.0f : GetPitchFromValue(persona.speechPitch),
+					style = persona.coquiVoiceStyle ?? "neutral"
+				});
+				
+				var bytes = Encoding.UTF8.GetBytes(jsonPayload);
+				using var request = new UnityWebRequest(coquiUrl, "POST");
+				request.uploadHandler = new UploadHandlerRaw(bytes);
+				request.downloadHandler = new DownloadHandlerAudioClip(coquiUrl, AudioType.WAV);
+				request.SetRequestHeader("Content-Type", "application/json");
+				
+				var asyncOperation = request.SendWebRequest();
+				while (!asyncOperation.isDone && RimGPTMod.Running)
+					await Task.Delay(100);
+					
+				if (request.result == UnityWebRequest.Result.Success)
+				{
+					var audioClip = DownloadHandlerAudioClip.GetContent(request);
+					return audioClip;
+				}
+				else
+				{
+					errorCallback?.Invoke($"Coqui TTS Error: {request.error}");
+					return null;
+				}
+			}
+			catch (Exception e)
+			{
+				errorCallback?.Invoke($"Coqui TTS Exception: {e.Message}");
+				return null;
+			}
+		}
+		
+		private static float GetSpeedFromRate(string rate)
+		{
+			return rate switch
+			{
+				"x-slow" => 0.8f,
+				"slow" => 0.9f,
+				"medium" => 1.0f,
+				"fast" => 1.2f,
+				"x-fast" => 1.4f,
+				_ => 1.0f
+			};
+		}
+		
+		private static float GetPitchFromValue(string pitch)
+		{
+			return pitch switch
+			{
+				"x-low" => 0.8f,
+				"low" => 0.9f,
+				"medium" => 1.0f,
+				"high" => 1.2f,
+				"x-high" => 1.4f,
+				_ => 1.0f
+			};
+		}
+
 		public static async Task<AudioClip> AudioClipFromAzure(Persona persona, string path, string text, Action<string> errorCallback)
 		{
+			// Fall back to Coqui if Azure is configured but fails
+			if (RimGPTMod.Settings.fallbackToCoqui)
+			{
+				return await AudioClipFromCoqui(persona, text, errorCallback);
+			}
+			
 			var voice = persona.azureVoice;
 			var style = persona.azureVoiceStyle;
 			var styledegree = persona.azureVoiceStyleDegree;
@@ -195,7 +351,7 @@ namespace RimGPT
 			{
 				var error = $"Error communicating with Azure: {exception}";
 				errorCallback?.Invoke(error);
-				return default;
+				return await AudioClipFromCoqui(persona, text, errorCallback);
 			}
 			var code = request.responseCode;
 			if (Tools.DEBUG)
@@ -204,12 +360,11 @@ namespace RimGPT
 			{
 				var error = $"Got {code} response from Azure: {request.error}";
 				errorCallback?.Invoke(error);
-				return default;
+				return await AudioClipFromCoqui(persona, text, errorCallback);
 			}
 			return await Main.Perform(() =>
 			{
 				var audioClip = downloadHandlerAudioClip.audioClip;
-				// SaveAudioClip.Save("/Users/ap/Desktop/test.wav", audioClip);
 				return audioClip;
 			});
 		}
@@ -240,23 +395,19 @@ namespace RimGPT
 			return DownloadHandlerAudioClip.GetContent(request);
 		}
 
-		//public static async Task PlayTTSMP3(string text, string voice = "Salli", string source = "ttsmp3")
-		//{
-		//		var form = new WWWForm();
-		//		form.AddField("msg", text);
-		//		form.AddField("lang", voice);
-		//		form.AddField("source", source);
-		//		var response = await DispatchFormPost<TTSResponse>("https://ttsmp3.com/makemp3_new.php", form);
-		//		var audioClip = await DownloadAudioClip(response.URL);
-		//		GetAudioSource().PlayOneShot(audioClip);
-		//}
-
 		public static void TestKey(Persona persona, Action callback)
 		{
 			Tools.SafeAsync(async () =>
 			{
 				var text = "This is a test message";
 				string error = null;
+				
+				// Start Coqui server automatically
+				if (RimGPTMod.Settings.useCoquiTTS || RimGPTMod.Settings.fallbackToCoqui)
+				{
+					StartCoquiServer();
+				}
+				
 				if (RimGPTMod.Settings.IsConfigured)
 				{
 					var prompt = "Say something random.";
@@ -269,7 +420,19 @@ namespace RimGPT
 				}
 				if (text != null)
 				{
-					var audioClip = await AudioClipFromAzure(persona, $"{APIURL}/v1", text, e => error = e);
+					AudioClip audioClip = null;
+					
+					if (RimGPTMod.Settings.useCoquiTTS)
+					{
+						// Use Coqui TTS directly
+						audioClip = await AudioClipFromCoqui(persona, text, e => error = e);
+					}
+					else
+					{
+						// Try Azure first, fall back to Coqui if configured
+						audioClip = await AudioClipFromAzure(persona, $"{APIURL}/v1", text, e => error = e);
+					}
+					
 					if (audioClip != null)
 					{
 						var source = GetAudioSource();
@@ -288,6 +451,23 @@ namespace RimGPT
 				else
 					callback?.Invoke();
 			});
+		}
+		
+		public static void StopCoquiServer()
+		{
+			try
+			{
+				if (coquiServerProcess != null && !coquiServerProcess.HasExited)
+				{
+					coquiServerProcess.Kill();
+					coquiServerProcess = null;
+					Logger.Message("Coqui TTS server stopped");
+				}
+			}
+			catch (Exception e)
+			{
+				Logger.Error($"Error stopping Coqui server: {e.Message}");
+			}
 		}
 	}
 }
